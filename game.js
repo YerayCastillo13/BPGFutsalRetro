@@ -630,7 +630,7 @@ function drawField() {
   ctx.beginPath(); ctx.moveTo(P.l, CY); ctx.lineTo(P.r, CY); ctx.stroke();
   ctx.beginPath(); ctx.arc(CX, CY, 30, 0, Math.PI * 2); ctx.stroke();
   // escudo central
-  ctx.globalAlpha = .22; circ(CX, CY, 15, '#f6c400'); circ(CX, CY, 11, '#0d0d0d'); circ(CX, CY, 7, '#f6c400'); ctx.globalAlpha = 1;
+  ctx.globalAlpha = .35; drawCrest(ctx, CX, CY, 34); ctx.globalAlpha = 1;
   circ(CX, CY, 1.8, '#f0fff0');
   // áreas (D de fútbol sala)
   ctx.beginPath(); ctx.arc(CX, P.t, 64, 0, Math.PI); ctx.stroke();
@@ -947,6 +947,12 @@ function refreshSelect(msg) {
 // --- escena de portada (TV + consola, estilo cartel) ---
 const SW = 360, SH = 392, SCR = { x: 56, y: 32, w: 248, h: 194 };
 const scene = { cv: $('#hero'), stat: null, duck: null, crowd: [], flags: [], scarves: [] };
+// escudo oficial (crest.svg) también dentro de los canvas
+const crestImg = new Image();
+crestImg.onload = () => { scene.stat = null; };
+crestImg.src = 'crest.svg';
+const crestOK = () => crestImg.complete && crestImg.naturalWidth > 0;
+const drawCrest = (c, x, y, s) => { if (crestOK()) c.drawImage(crestImg, x - s / 2, y - s / 2, s, s); };
 const mkCv = (w, h) => { const c = document.createElement('canvas'); c.width = w; c.height = h; return c; };
 function painter(c) {
   return {
@@ -979,7 +985,7 @@ function buildStatic() {
   g.addColorStop(0, 'rgba(110,160,255,.25)'); g.addColorStop(1, 'rgba(0,0,0,0)'); c.fillStyle = g; c.fillRect(0, 0, SW, 304);
   // póster izquierdo con el escudo
   R(2, 16, 30, 46, 2, '#6b4a26'); F(5, 19, 24, 40, '#0d0d0d');
-  E(17, 33, 9, 9, '#f6c400'); E(17, 33, 6.5, 6.5, '#0d0d0d'); E(17, 33, 4, 4, '#f6c400'); E(17, 33, 1.6, 1.6, '#0d0d0d');
+  drawCrest(c, 17, 34, 22);
   T('BPG', 17, 50, 6, '#f6c400');
   // estantería con juegos
   [['#dc2626', 2, 20], ['#f6c400', 8, 26], ['#2563eb', 14, 18], ['#16a34a', 20, 22], ['#0d0d0d', 26, 27]].forEach(([col, x, h]) => {
@@ -1014,7 +1020,7 @@ function buildStatic() {
   });
   E(345, 304, 18, 3, 'rgba(0,0,0,.35)');
   R(330, 268, 30, 36, 3, '#1e3a8a'); F(330, 273, 30, 4, '#f6c400');
-  E(345, 291, 6.5, 6.5, '#0d0d0d'); E(345, 291, 4.5, 4.5, '#f6c400'); E(345, 291, 1.8, 1.8, '#0d0d0d');
+  drawCrest(c, 345, 291, 16);
   // cartuchos de la izquierda
   E(56, 384, 56, 6, 'rgba(0,0,0,.35)');
   R(4, 352, 104, 30, 4, '#3a3a3a'); R(4, 352, 104, 4, 2, '#555');
@@ -1024,7 +1030,7 @@ function buildStatic() {
   c.save(); c.translate(62, 338); c.rotate(-.06);
   R(-52, -14, 104, 26, 4, '#232323'); R(-52, -14, 104, 3, 2, '#3c3c3c');
   R(-44, -10, 68, 18, 2, '#f6c400');
-  E(-35, -1, 6, 6, '#0d0d0d'); E(-35, -1, 4, 4, '#f6c400'); E(-35, -1, 1.5, 1.5, '#0d0d0d');
+  drawCrest(c, -35, -1, 15);
   T('BPG', -4, 0, 10, '#0d0d0d', 'Bungee');
   for (let i = 0; i < 4; i++) F(30, -9 + i * 5, 16, 1.5, '#3c3c3c');
   c.restore();
@@ -1042,7 +1048,7 @@ function buildStatic() {
   R(136, 268, 88, 66, 5, '#1d1d1d'); R(136, 268, 88, 4, 3, '#383838');
   for (let i = 0; i < 4; i++) F(142, 275 + i * 3, 76, 1, '#333');
   R(143, 288, 74, 40, 3, '#0d0d0d'); R(144, 289, 72, 38, 2, '#f6c400');
-  E(162, 303, 10, 10, '#0d0d0d'); E(162, 303, 7.5, 7.5, '#f6c400'); E(162, 303, 4.5, 4.5, '#0d0d0d'); E(162, 303, 1.8, 1.8, '#fff');
+  drawCrest(c, 162, 303, 24);
   T('BPG', 196, 304, 14, '#0d0d0d', 'Bungee'); T('FUENLABRADA', 180, 321, 5, '#0d0d0d');
   // mando
   c.strokeStyle = '#6b6b6b'; c.lineWidth = 2; c.beginPath(); c.moveTo(252, 366); c.bezierCurveTo(264, 390, 238, 392, 232, 376); c.stroke();
