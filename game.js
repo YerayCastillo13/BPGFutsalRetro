@@ -5,8 +5,8 @@ const VW = 270, VH = 480;
 const P = { l: 14, r: 256, t: 34, b: 446 };        // límites de la pista
 const CX = 135, CY = 240;
 const GW = 64, GX1 = CX - GW / 2, GX2 = CX + GW / 2; // portería
-const BR = 2.6;                                    // radio balón
-const BASE_SPD = 80;
+const BR = 3.6;                                    // radio balón
+const BASE_SPD = 60;
 
 const SQUAD = [
   { num: 1,  name: 'EL MURO',  pos: 'Portero', role: 'gk',  look: 'gk',
@@ -26,7 +26,7 @@ const SQUAD = [
     spd: .95, shot: 1.45, ctrl: 1.05, tackle: 1.0, pass: .95, fire: true },
 ];
 const RIVAL = [
-  { num: 1,  name: 'PORTERO', role: 'gk',  look: 'gk', spd: .95, shot: 1, ctrl: 1, tackle: 1, pass: 1, reach: 1.25 },
+  { num: 1,  name: 'PORTERO', role: 'gk',  look: 'gk', spd: .95, shot: 1, ctrl: 1, tackle: 1, pass: 1, reach: 1.05 },
   { num: 4,  name: 'CIERRE',  role: 'def', spd: 1.0, shot: 1, ctrl: 1, tackle: 1.2, pass: 1 },
   { num: 8,  name: 'ALA',     role: 'wl',  spd: 1.08, shot: 1, ctrl: 1, tackle: 1, pass: 1 },
   { num: 11, name: 'ALA',     role: 'wr',  spd: 1.05, shot: 1, ctrl: 1.1, tackle: 1, pass: 1 },
@@ -34,9 +34,10 @@ const RIVAL = [
 ];
 const HOME = { gk: [CX, 434], def: [CX, 378], wl: [64, 326], wr: [206, 326], piv: [CX, 272] };
 const DIFFS = {
-  easy:   { spd: .9,  tackle: .7,  gk: .95, shoot: .9 },
-  normal: { spd: 1.04, tackle: 1.35, gk: 1.15, shoot: 1.1 },
-  hard:   { spd: 1.14, tackle: 1.9, gk: 1.3, shoot: 1.3 },
+  // react: probabilidad/seg de que la IA tome decisiones (tirar/pasar) — más bajo = más tiempo para ti
+  easy:   { spd: .74, tackle: .3,  gk: .8,  shoot: .75, react: .55 },
+  normal: { spd: .84, tackle: .55, gk: .92, shoot: .88, react: .75 },
+  hard:   { spd: .95, tackle: .9,  gk: 1.05, shoot: 1.0, react: 1.0 },
 };
 
 // ================== UTILIDADES ==================
@@ -198,7 +199,7 @@ function endMatch() {
 // ================== ACCIONES ==================
 function take(p, quiet) {
   const b = G.ball;
-  b.owner = p; b.protect = .45; b.passTarget = null; b.curve = 0; b.fire = false; b.vx = b.vy = 0;
+  b.owner = p; b.protect = p.team === 0 ? .9 : .5; b.passTarget = null; b.curve = 0; b.fire = false; b.vx = b.vy = 0;
   p.holdT = 0;
   if (p.team === 0) G.user = p;
   if (!quiet) tone(p.team === 0 ? 520 : 380, .04, 'square', .035);
@@ -207,7 +208,7 @@ function kick(p, dx, dy, speed) {
   const b = G.ball, d = hyp(dx, dy) || 1;
   dx /= d; dy /= d;
   b.owner = null; b.vx = dx * speed; b.vy = dy * speed;
-  b.x = p.x + dx * (p.r + 3.5); b.y = p.y + dy * (p.r + 3.5);
+  b.x = p.x + dx * (p.r + BR + 1); b.y = p.y + dy * (p.r + BR + 1);
   b.noTouch = .2; b.lastTouch = p; b.curve = 0; b.fire = false; b.passTarget = null;
   p.charging = false; p.charge = 0; p.holdT = 0;
 }
@@ -228,7 +229,7 @@ function shoot(p, c) {
   }
   const ca = Math.cos(ang), sa = Math.sin(ang);
   const ndx = dx * ca - dy * sa, ndy = dx * sa + dy * ca;
-  const speed = Math.min(640, (170 + 300 * pw) * p.shot * (p.team === 1 ? G.diff.shoot : 1));
+  const speed = Math.min(520, (150 + 250 * pw) * p.shot * (p.team === 1 ? G.diff.shoot : 1));
   kick(p, ndx, ndy, speed);
   b.curve = curve; b.shooter = p; b.fire = !!p.fire && pw > .7;
   sfx.kick(pw); if (b.fire) { noise(.2, .1); vib(30); }
@@ -253,7 +254,7 @@ function pass(p) {
   if (!best) return;
   const d = dist(p, best);
   const tx = best.x + best.vx * .3, ty = best.y + best.vy * .3;
-  const speed = clamp(150 + d * 1.15, 170, 340) * p.pass;
+  const speed = clamp(130 + d * 1.0, 150, 290) * p.pass;
   kick(p, tx - b.x, ty - b.y, speed);
   b.passTarget = best; b.shooter = p;
   if (p.team === 0) G.user = best;
@@ -333,9 +334,10 @@ function aiCarrier(p, dt) {
   let no = 1e9;
   const opps = G.players.filter(q => q.team !== p.team);
   for (const o of opps) no = Math.min(no, dist(o, p));
-  const shootR = 128 * (p.team === 1 ? G.diff.shoot : 1);
-  if (G.ball.protect <= 0 && dg < shootR && (Math.random() < 2.4 * dt || dg < 75)) { shoot(p, rnd(.45, 1)); return; }
-  if ((no < 22 && Math.random() < 1.5 * dt) || p.holdT > 3.2) { pass(p); return; }
+  const rv = p.team === 1 ? G.diff.react : 1;
+  const shootR = 115 * (p.team === 1 ? G.diff.shoot : 1);
+  if (G.ball.protect <= 0 && dg < shootR && (Math.random() < 1.5 * rv * dt || dg < 65)) { shoot(p, rnd(.35, .9)); return; }
+  if ((no < 22 && Math.random() < 1.2 * rv * dt) || p.holdT > 3.5) { pass(p); return; }
   let dx = CX + (p.x - CX) * .45 - p.x, dy = gy - p.y;
   let d = hyp(dx, dy) || 1; dx /= d; dy /= d;
   let ax = 0, ay = 0;
@@ -377,7 +379,7 @@ function gkAI(p, dt) {
   const toward = !b.owner && (p.team === 0 ? b.vy > 70 : b.vy < -70);
   if (toward) {
     p.react += dt;
-    const delay = p.team === 1 ? .13 / G.diff.gk : .06;
+    const delay = p.team === 1 ? .2 / G.diff.gk : .06;
     if (p.react > delay) {
       const t = (ty - b.y) / b.vy;
       if (t > 0 && t < 1.5) { tx = clamp(b.x + b.vx * t, GX1 - 6, GX2 + 6); m = 1.45 * (p.team === 1 ? G.diff.gk : 1.1); }
@@ -468,7 +470,7 @@ function updBall(dt) {
   const b = G.ball;
   if (b.owner) {
     const o = b.owner, wob = Math.sin(o.anim * 9) * 1.2 * Math.min(1, hyp(o.vx, o.vy) / 60);
-    b.x = o.x + o.fx * (o.r + 2.5 + wob); b.y = o.y + o.fy * (o.r + 2.5 + wob);
+    b.x = o.x + o.fx * (o.r + BR + wob); b.y = o.y + o.fy * (o.r + BR + wob);
     b.x = clamp(b.x, P.l + BR, P.r - BR); b.y = clamp(b.y, P.t + BR, P.b - BR);
     b.vx = o.vx; b.vy = o.vy; b.spin += hyp(o.vx, o.vy) * dt * .2;
     return;
@@ -518,11 +520,11 @@ function steals(dt) {
     if (q === G.user) {
       if (q.dash > 0 && !q.dashHit) {
         q.dashHit = true;
-        if (Math.random() < .45 + .3 * q.tackle / o.ctrl) { steal(q, o); return; }
-        q.stun = .35; tone(150, .08, 'square', .04);
-      } else if (Math.random() < .55 * q.tackle / o.ctrl * dt) { steal(q, o); return; }
+        if (Math.random() < .6 + .3 * q.tackle / o.ctrl) { steal(q, o); return; }
+        q.stun = .25; tone(150, .08, 'square', .04);
+      } else if (Math.random() < .8 * q.tackle / o.ctrl * dt) { steal(q, o); return; }
     } else {
-      const rate = (q.team === 1 ? 1.5 * G.diff.tackle : 1.0) * q.tackle / o.ctrl;
+      const rate = (q.team === 1 ? 1.1 * G.diff.tackle : 1.0) * q.tackle / o.ctrl;
       if (Math.random() < rate * dt) { steal(q, o); return; }
     }
   }
@@ -690,10 +692,20 @@ function drawBall() {
     b.trail.forEach(([x, y], i) => { ctx.globalAlpha = i / b.trail.length * .35; circ(x, y, BR * .9, b.fire ? '#f97316' : '#fff'); });
     ctx.globalAlpha = 1;
   }
-  ctx.fillStyle = 'rgba(0,0,0,.35)'; ctx.beginPath(); ctx.ellipse(b.x + 1, b.y + 2, BR, BR * .7, 0, 0, 7); ctx.fill();
-  circ(b.x, b.y, BR + .4, b.fire ? '#fde047' : '#fff');
+  ctx.fillStyle = 'rgba(0,0,0,.4)'; ctx.beginPath(); ctx.ellipse(b.x + 1.5, b.y + 2.5, BR + 1, (BR + 1) * .7, 0, 0, 7); ctx.fill();
+  // aro amarillo pulsante cuando el balón está suelto, para localizarlo siempre
+  if (!b.owner && (G.state === 'play' || G.state === 'paused')) {
+    const pr = BR + 4 + Math.sin(G.t * 10) * 1.5;
+    ctx.strokeStyle = 'rgba(0,0,0,.6)'; ctx.lineWidth = 2.6; ctx.beginPath(); ctx.arc(b.x, b.y, pr, 0, 7); ctx.stroke();
+    ctx.strokeStyle = '#f6c400'; ctx.lineWidth = 1.4; ctx.beginPath(); ctx.arc(b.x, b.y, pr, 0, 7); ctx.stroke();
+  }
+  circ(b.x, b.y, BR + 1.2, '#000');
+  circ(b.x, b.y, BR, b.fire ? '#fde047' : '#fff');
   ctx.fillStyle = '#111';
-  ctx.fillRect(b.x + Math.cos(b.spin) * 1.2 - .7, b.y + Math.sin(b.spin) * 1.2 - .7, 1.4, 1.4);
+  for (let i = 0; i < 2; i++) {
+    const a = b.spin + i * Math.PI;
+    ctx.fillRect(b.x + Math.cos(a) * 1.6 - 1, b.y + Math.sin(a) * 1.6 - 1, 2, 2);
+  }
 }
 function render() {
   ctx.save();
@@ -926,4 +938,5 @@ G.players = [...SQUAD.map(d => newP(d, 0)), ...RIVAL.map(d => newP(d, 1))];
 G.user = G.players[4];
 fitCanvas();
 requestAnimationFrame(frame);
+if (/[?&]debug/.test(location.search)) window.__BPG = { G, step, startMatch, render, input };
 })();
