@@ -13,12 +13,12 @@ Rasgos y looks se editan en el array `ROSTER` al principio de `game.js`.
 | 27 | ANCIO | Gorra | Portero gato: el mejor bajo palos |
 | 3 | TORRY | Barba | Muro defensivo |
 | 4 | NACH | Gafas | Pase de tiralíneas |
-| 5 | JESUS | Brazalete | Capitán: entradas de acero |
+| 5 | JESUS | Pelo rapado | Ancla: entradas de acero |
 | 6 | ZARATE | Bigote | Pulmón infinito: sprint que se recarga rápido |
 | 7 | ROMERO JR | Cinta roja | Turbo: el más rápido |
 | 8 | ALES | Rizos | Regateador: casi imposible de robar |
 | 9 | JOSE | Cresta | Tiro de fuego |
-| 10 | ROMERO | Gafas de sol | El mago: tiros con efecto |
+| 10 | ROMERO | Gafas de sol + brazalete | **Capitán**. El mago: tiros con efecto |
 | 13 | YERAY | Bandana azul | Todoterreno |
 | 14 | MIGU | Afro | Killer del área |
 | 19 | PATO | Corona | El pato original: su ¡CUAC! asusta al portero |
