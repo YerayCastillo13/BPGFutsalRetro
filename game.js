@@ -970,73 +970,6 @@ function painter(c) {
   for (let i = 0; i < 5; i++) scene.scarves.push({ x: 18 + i * 48 + rnd(-6, 6), y: rnd(100, 116), ph: rnd(7) });
 })();
 
-// El pato grande del cartel: ceño fruncido, brazos cruzados y la camiseta del BPG
-function buildHeroDuck() {
-  const cv = mkCv(220, 220), c = cv.getContext('2d'), { R, E, P, L } = painter(c);
-  const cx = 110, Y = '#ffc928', YD = '#e3a300', YL = '#ffe27a', OUT = '#5c3a00', K = '#0d0d0d', SHIRT = '#f6c400';
-  // hombros/mangas negras y camiseta amarilla
-  R(cx - 84, 132, 168, 100, 42, K);
-  R(cx - 56, 136, 112, 96, 24, SHIRT);
-  R(cx + 22, 142, 30, 90, 14, '#d4a200');
-  R(cx - 50, 142, 12, 80, 6, '#ffd84a');
-  P([cx - 28, 132, cx + 28, 132, cx, 162], K);
-  P([cx - 18, 132, cx + 18, 132, cx, 151], Y);
-  // escudo en el pecho
-  E(cx + 32, 160, 10, 10, K); E(cx + 32, 160, 7.5, 7.5, SHIRT); E(cx + 32, 160, 4.5, 4.5, K); E(cx + 32, 160, 2, 2, '#fff');
-  // mangas con franja
-  R(cx - 92, 150, 34, 56, 14, K); R(cx + 58, 150, 34, 56, 14, K);
-  R(cx - 90, 190, 30, 5, 2, SHIRT); R(cx + 60, 190, 30, 5, 2, SHIRT);
-  // brazos cruzados (alas con plumas)
-  const arm = (y, rot, col, dark) => {
-    c.save(); c.translate(cx, y); c.rotate(rot);
-    R(-64, -17, 128, 34, 17, OUT); R(-62, -15, 124, 30, 15, col);
-    c.strokeStyle = dark; c.lineWidth = 2;
-    for (let i = 0; i < 5; i++) { c.beginPath(); c.arc(-40 + i * 20, -2, 8, Math.PI * .15, Math.PI * .85); c.stroke(); }
-    // punta de ala con plumas
-    const sx = rot < 0 ? 1 : -1;
-    for (let k = 0; k < 3; k++) {
-      const fx = sx * (62 + k * 5), fy = -9 + k * 9;
-      E(fx, fy, 10, 5.5, OUT, sx * .25); E(fx, fy, 8.5, 4, col, sx * .25);
-    }
-    c.restore();
-  };
-  arm(198, .17, YD, '#b07a00');
-  arm(182, -.17, Y, YD);
-  // cuello
-  E(cx, 126, 32, 16, Y);
-  // tupé (contorno + relleno)
-  E(cx, 78, 60, 56, OUT);
-  P([cx - 22, 36, cx - 12, 0, cx, 32], OUT); P([cx - 4, 32, cx + 8, -2, cx + 16, 32], OUT); P([cx + 10, 34, cx + 30, 8, cx + 28, 40], OUT);
-  P([cx - 19, 36, cx - 12, 6, cx - 3, 34], Y); P([cx - 1, 34, cx + 8, 4, cx + 13, 34], Y); P([cx + 13, 36, cx + 27, 14, cx + 25, 40], YD);
-  // mejillas esponjosas
-  P([cx - 54, 68, cx - 74, 62, cx - 59, 82, cx - 72, 88, cx - 52, 98], OUT);
-  P([cx + 54, 68, cx + 74, 62, cx + 59, 82, cx + 72, 88, cx + 52, 98], OUT);
-  P([cx - 54, 71, cx - 69, 66, cx - 57, 83, cx - 67, 88, cx - 52, 95], Y);
-  P([cx + 54, 71, cx + 69, 66, cx + 57, 83, cx + 67, 88, cx + 52, 95], YD);
-  // cabeza con sombreado
-  E(cx, 78, 57, 53, Y);
-  c.save(); c.beginPath(); c.ellipse(cx, 78, 57, 53, 0, 0, Math.PI * 2); c.clip();
-  E(cx + 26, 98, 52, 50, YD); E(cx - 8, 72, 56, 52, Y); E(cx - 28, 42, 18, 10, YL, -.5);
-  c.restore();
-  // ojos enfadados con iris azul
-  for (const s of [-1, 1]) {
-    const ex = cx + s * 23, ey = 70, inX = ex - s * 18, outX = ex + s * 18;
-    E(ex, ey, 17, 19, OUT); E(ex, ey, 15, 17, '#fff');
-    E(ex - s * 4, ey + 5, 9, 10, '#1e3a8a'); E(ex - s * 4, ey + 5, 7.5, 8.5, '#3b82f6');
-    E(ex - s * 4, ey + 6, 4.2, 5, K); E(ex - s * 4 - 2.5, ey + 2, 2, 2, '#fff');
-    P([outX + s * 3, ey - 26, inX - s * 3, ey - 26, inX - s * 3, ey - 3, outX + s * 3, ey - 14], s < 0 ? Y : '#f6bd1f');
-    L([outX + s * 3, ey - 15, inX - s * 1, ey - 3], '#24160a', 8);
-  }
-  L([cx - 5, 56, cx, 64, cx + 5, 56], '#b07a00', 2.2);
-  // pico
-  E(cx, 112, 42, 18, OUT); E(cx, 111, 40, 16, '#ff8c1a');
-  c.save(); c.beginPath(); c.ellipse(cx, 111, 40, 16, 0, 0, Math.PI * 2); c.clip(); c.fillStyle = '#d95f00'; c.fillRect(cx - 42, 113, 84, 20); c.restore();
-  c.strokeStyle = '#7a2e00'; c.lineWidth = 2.5; c.beginPath(); c.moveTo(cx - 38, 110); c.quadraticCurveTo(cx, 120, cx + 38, 110); c.stroke();
-  E(cx - 9, 104, 3.2, 1.7, '#9a3d00'); E(cx + 9, 104, 3.2, 1.7, '#9a3d00');
-  E(cx - 15, 102, 11, 3, '#ffb15c', -.1);
-  return cv;
-}
-
 // Todo lo que no se mueve: pared, tele, mesa, consola, cartuchos, mando...
 function buildStatic() {
   const cv = mkCv(SW, SH), c = cv.getContext('2d'), { F, R, E, P, L, T } = painter(c);
@@ -1126,7 +1059,7 @@ function drawScene(t) {
   const cv = scene.cv;
   if (cv.width !== SW) { cv.width = SW; cv.height = SH; }
   if (!scene.stat) scene.stat = buildStatic();
-  if (!scene.duck) scene.duck = buildHeroDuck();
+  if (!scene.duck) { scene.duck = mkCv(64, 64); drawPortrait(scene.duck, { role: "x", look: "hero" }, 0); }
   const c = cv.getContext('2d'), { F, E, L, T } = painter(c);
   c.drawImage(scene.stat, 0, 0);
   const X = SCR.x, Y0 = SCR.y, W = SCR.w, H = SCR.h;
@@ -1175,7 +1108,9 @@ function drawScene(t) {
   F(gx1 - 2, gt, gx2 - gx1 + 4, 4, '#f5f5f5'); F(gx1 - 2, gt, 4, gb - gt, '#f5f5f5'); F(gx2 - 2, gt, 4, gb - gt, '#f5f5f5');
   // el pato (respira)
   const bob = Math.sin(t * 2.2) * 1.5;
-  c.drawImage(scene.duck, X + W / 2 - 88, Y0 + 20 + bob, 176, 176);
+  c.imageSmoothingEnabled = false;
+  c.drawImage(scene.duck, X + W / 2 - 96, Y0 + 2 + Math.round(bob), 192, 192);
+  c.imageSmoothingEnabled = true;
   // efecto CRT
   for (let y = Y0; y < Y0 + H; y += 2) F(X, y, W, 1, 'rgba(0,0,0,.13)');
   const vg = c.createRadialGradient(X + W / 2, Y0 + H / 2, H * .35, X + W / 2, Y0 + H / 2, H * .85);
