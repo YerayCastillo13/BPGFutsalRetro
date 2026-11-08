@@ -210,6 +210,9 @@ button{font-family:inherit;cursor:pointer}
 .admsg{min-height:2.4em;font-family:system-ui,sans-serif;font-size:12px;line-height:1.35;color:#e7dcc4}
 .admsg.err{color:#fca5a5}.admsg.ok{color:#86efac}
 .adbox .row{justify-content:space-between}
+.adcrest{display:flex;align-items:center;gap:14px}
+.adcrest svg{width:56px;height:56px;flex:none;filter:drop-shadow(0 3px 0 #000)}
+.adcrest .rbtn{flex:1}
 
 h2{font-family:'Bungee';font-size:24px;color:var(--y);text-shadow:3px 3px 0 #000;margin:6px 0 4px}
 .help{width:100%;max-width:380px;margin:6px 0;font-family:system-ui,sans-serif;font-size:13px;line-height:1.55;color:#e7dcc4;background:#0007;padding:10px 12px;
@@ -328,6 +331,7 @@ h2{font-family:'Bungee';font-size:24px;color:var(--y);text-shadow:3px 3px 0 #000
       </div>
       <label>RIVAL<input id="adRival" maxlength="40"></label>
       <label>LUGAR<input id="adLugar" maxlength="50"></label>
+      <div class="adcrest"><svg id="adCrest" viewBox="0 0 64 64" aria-label="Escudo rival"></svg><button class="rbtn sm" type="button" id="adDice">🎲 OTRO ESCUDO</button></div>
       <div class="admsg" id="adMsg2"></div>
       <div class="row"><button class="rbtn" type="submit">GUARDAR</button><button class="rbtn dark" type="button" data-close>CERRAR</button></div>
     </form>

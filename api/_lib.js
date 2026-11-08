@@ -52,6 +52,8 @@ function sanitize(d) {
     hora: clean(d.hora, 8),
     lugar: clean(d.lugar, 50).toUpperCase(),
   };
+  const seed = parseInt(d.seed, 10);
+  if (Number.isFinite(seed) && seed >= 0 && seed < 1000000) out.seed = seed; // semilla del escudo (si no hay, se deriva del nombre)
   if (!out.n || !out.rival) return null;
   return out;
 }

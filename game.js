@@ -1306,6 +1306,51 @@ const JDEF = { n: 4, rival: 'UNIÓN FUENLABRADA FS', fecha: '8/11/26', hora: '10
 let J = Object.assign({}, JDEF);
 const norm = s => String(s).normalize('NFD').replace(/[̀-ͯ]/g, '').toUpperCase();
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+// ---- Escudos de rival generados (determinista por semilla) ----
+const hashStr = s => { let h = 2166136261; for (const ch of norm(s)) { h ^= ch.charCodeAt(0); h = Math.imul(h, 16777619); } return (h >>> 0) % 1000000; };
+const mulberry = a => () => { a = (a + 0x6D2B79F5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+const CREST_SHAPES = [
+  'M8,6 H56 V30 C56,46 45,55 32,60 C19,55 8,46 8,30 Z',
+  'M4,32 A28,28 0 1,0 60,32 A28,28 0 1,0 4,32 Z',
+  'M10,6 H54 V30 L32,60 L10,30 Z',
+  'M32,3 L57,15 V43 L32,61 L7,43 V15 Z',
+  'M8,6 H56 V38 Q56,58 32,60 Q8,58 8,38 Z',
+];
+const CREST_COLORS = [
+  ['#7f1d1d', '#fca5a5', '#450a0a'], ['#14532d', '#86efac', '#052e16'], ['#4c1d95', '#c4b5fd', '#2e1065'], ['#9a3412', '#fdba74', '#431407'],
+  ['#18181b', '#f4f4f5', '#000000'], ['#831843', '#f9a8d4', '#500724'], ['#134e4a', '#5eead4', '#042f2e'], ['#1e3a8a', '#fca5a5', '#172554'],
+  ['#b91c1c', '#ffffff', '#450a0a'], ['#065f46', '#fde68a', '#022c22'],
+];
+const CREST_PATTERNS = [
+  '', '<rect x="12" y="0" width="9" height="64"/><rect x="29" y="0" width="9" height="64"/><rect x="46" y="0" width="9" height="64"/>',
+  '<rect x="0" y="25" width="64" height="13"/>', '<polygon points="0,18 0,32 64,54 64,40"/>', '<rect x="32" y="0" width="32" height="64"/>',
+  '<path d="M0,22 L32,42 L64,22 V33 L32,53 L0,33Z"/>', '<rect x="0" y="0" width="64" height="17"/>',
+];
+const CREST_EMBLEMS = [
+  c => `<polygon points="32,19 35.2,26.5 43.2,27.2 37.2,32.6 39,40.5 32,36.4 25,40.5 26.8,32.6 20.8,27.2 28.8,26.5" fill="${c}"/>`,
+  c => `<circle cx="32" cy="30" r="8" fill="#fff"/><polygon points="32,25.5 36.3,28.6 34.6,33.6 29.4,33.6 27.7,28.6" fill="#111"/>`,
+  c => `<polygon points="35,18 24,32 31,32 28,43 40,27 33,27" fill="${c}"/>`,
+  c => `<polygon points="32,18 42,31 32,44 22,31" fill="${c}"/><polygon points="32,24 37,31 32,38 27,31" fill="#000" opacity=".35"/>`,
+  c => `<polygon points="21,40 21,25 27,32 32,22 37,32 43,25 43,40" fill="${c}"/><rect x="21" y="40" width="22" height="3" fill="${c}"/>`,
+  c => `<rect x="28" y="18" width="8" height="26" fill="${c}"/><rect x="20" y="26" width="24" height="8" fill="${c}"/>`,
+  (c, t) => `<circle cx="30" cy="31" r="9.5" fill="${c}"/><circle cx="34.5" cy="28" r="8.5" fill="${t}"/><polygon points="40,36 41.2,38.8 44,39.2 42,41 42.5,44 40,42.5 37.5,44 38,41 36,39.2 38.8,38.8" fill="${c}"/>`,
+];
+const CREST_STOP = new Set(['CD', 'CF', 'UD', 'FC', 'FS', 'F.S.', 'DE', 'DEL', 'LA', 'EL', 'LOS', 'LAS', 'SD', 'AD', 'CDE', 'ATLETICO', 'CLUB']);
+function crestSVG(rival, seed, uid = 'c') {
+  const rnd = mulberry(seed >>> 0), pick = a => a[rnd() * a.length | 0];
+  const shape = pick(CREST_SHAPES), [main, acc, trim] = pick(CREST_COLORS), pat = pick(CREST_PATTERNS), emb = pick(CREST_EMBLEMS);
+  const words = String(rival).trim().toUpperCase().split(/\s+/).filter(w => !CREST_STOP.has(norm(w)));
+  const ws = words.length ? words : String(rival).trim().toUpperCase().split(/\s+/);
+  const ini = (ws.length > 1 ? ws.slice(0, 3).map(w => w[0]).join('') : ws[0].slice(0, 3)).replace(/[<>&"]/g, '');
+  return `<defs><clipPath id="${uid}cp"><path d="${shape}"/></clipPath></defs>` +
+    `<g clip-path="url(#${uid}cp)"><rect width="64" height="64" fill="${main}"/><g fill="${acc}" opacity=".9">${pat}</g>` +
+    `<circle cx="32" cy="31" r="12" fill="${trim}" opacity=".85"/>${emb("#fff", trim)}` +
+    `<rect x="0" y="43" width="64" height="11" fill="${trim}"/></g>` +
+    `<path d="${shape}" fill="none" stroke="${acc}" stroke-width="3.5" stroke-linejoin="round"/>` +
+    `<text x="32" y="52" font-family="Bungee,Arial Black" font-size="${ini.length > 2 ? 8 : 9}" fill="#fff" text-anchor="middle">${esc(ini)}</text>`;
+}
+const UNI_CREST = $('#rcrest').innerHTML;
+const crestSeed = j => (j && j.seed != null && isFinite(+j.seed)) ? +j.seed : hashStr(j && j.rival || '');
 function applyJornada(j) {
   J = Object.assign({}, JDEF, j || {});
   $('#jTitle').textContent = 'JORNADA ' + J.n;
@@ -1323,8 +1368,7 @@ function applyJornada(j) {
   RV.saca = isUni ? 'UNIÓN' : key;
   RV.gol = isUni ? 'UNIÓN FS' : String(J.rival).slice(0, 16);
   $('#hudRival').textContent = RV.hud;
-  $('#rcTop').textContent = isUni ? 'UNIÓN' : key.slice(0, 7);
-  $('#rcBot').textContent = isUni ? 'FS' : '';
+  $('#rcrest').innerHTML = isUni ? UNI_CREST : crestSVG(J.rival, crestSeed(J), 'r');
 }
 async function loadJornada() {
   const c = store.get('bpg_jornada', null); if (c) applyJornada(c);
@@ -1352,7 +1396,14 @@ async function loadJornada() {
   for (const ev of ['pointerup', 'pointerleave', 'pointercancel']) hero.addEventListener(ev, () => { clearTimeout(t); t = null; });
 })();
 
-const ad = { user: '', pass: '', fails: 0, lock: 0 };
+const ad = { user: '', pass: '', fails: 0, lock: 0, seed: null, manual: false };
+function adCrestRefresh() {
+  const rival = $('#adRival').value.trim();
+  if (!ad.manual) ad.seed = hashStr(rival);
+  $('#adCrest').innerHTML = norm(rival).includes('UNION FUENLABRADA') ? UNI_CREST : crestSVG(rival || '?', ad.seed, 'p');
+}
+$('#adRival').addEventListener('input', adCrestRefresh);
+$('#adDice').addEventListener('click', () => { ad.manual = true; ad.seed = Math.random() * 1000000 | 0; tone(500, .05, 'square', .04); adCrestRefresh(); });
 const adMsg = (id, txt, cls = '') => { const el = $(id); el.textContent = txt; el.className = 'admsg ' + cls; };
 const AD_ERR = {
   BAD_CREDENTIALS: 'Usuario o clave incorrectos.', TOO_MANY_ATTEMPTS: 'Demasiados intentos. Espera 15 minutos.',
@@ -1385,6 +1436,7 @@ $('#adLogin').addEventListener('submit', async e => {
     ad.user = user; ad.pass = pass; ad.fails = 0;
     $('#adPass').value = '';
     $('#adN').value = J.n; $('#adFecha').value = J.fecha; $('#adHora').value = J.hora; $('#adRival').value = J.rival; $('#adLugar').value = J.lugar;
+    ad.manual = J.seed != null; ad.seed = J.seed != null ? +J.seed : null; adCrestRefresh();
     adMsg('#adMsg2', ''); $('#adLogin').hidden = true; $('#adForm').hidden = false; tone(660, .08, 'square', .05);
   } else if (r.status === 401) {
     ad.fails++; tone(150, .15, 'square', .06);
@@ -1401,13 +1453,13 @@ $('#adParse').addEventListener('click', async () => {
   if (d.n) $('#adN').value = d.n;
   if (d.fecha) $('#adFecha').value = d.fecha;
   if (d.hora) $('#adHora').value = d.hora;
-  if (d.rival) $('#adRival').value = d.rival;
+  if (d.rival) { $('#adRival').value = d.rival; adCrestRefresh(); }
   if (d.lugar) $('#adLugar').value = d.lugar;
   adMsg('#adMsg2', (r.j.via === 'ai' ? 'Interpretado con IA' : 'Interpretación básica') + '. Revisa los datos y pulsa GUARDAR.', 'ok');
 });
 $('#adForm').addEventListener('submit', async e => {
   e.preventDefault();
-  const data = { n: $('#adN').value, fecha: $('#adFecha').value, hora: $('#adHora').value, rival: $('#adRival').value, lugar: $('#adLugar').value };
+  const data = { n: $('#adN').value, fecha: $('#adFecha').value, hora: $('#adHora').value, rival: $('#adRival').value, lugar: $('#adLugar').value, seed: ad.manual ? ad.seed : null };
   if (!+data.n || !data.rival.trim()) { adMsg('#adMsg2', 'Hace falta número de jornada y rival.', 'err'); return; }
   adMsg('#adMsg2', 'Guardando…');
   const r = await adPost('api/jornada', { user: ad.user, pass: ad.pass, data });
@@ -1446,5 +1498,5 @@ G.players = [...SQUAD.map(d => newP(d, 0)), ...RIVAL.map(d => newP(d, 1))];
 G.user = G.players[4];
 fitCanvas();
 requestAnimationFrame(frame);
-if (/[?&]debug/.test(location.search)) window.__BPG = { G, step, startMatch, render, input };
+if (/[?&]debug/.test(location.search)) window.__BPG = { G, step, startMatch, render, input, crestSVG, hashStr, applyJornada };
 })();
