@@ -146,7 +146,47 @@ button{font-family:inherit;cursor:pointer}
 .ptag{position:absolute;right:3px;top:3px;font-size:5px;background:var(--y);color:#000;padding:2px;z-index:1}
 .ptag:empty{display:none}
 .pname{font-size:clamp(5px,1.55vw,7px);white-space:nowrap;margin-top:3px;background:#000;padding:2px 3px;max-width:100%;overflow:hidden}
-#pinfo{width:100%;max-width:440px;min-height:2.8em;flex:none;font-family:system-ui,sans-serif;font-size:12px;line-height:1.35;color:#e7dcc4;text-align:center}
+/* ficha de jugador */
+#card{position:relative;width:100%;max-width:440px;flex:none;display:grid;grid-template-columns:auto 1fr;grid-template-areas:"p b" "s s" "d d";gap:6px 10px;
+  padding:10px;background:linear-gradient(#0d0d0d,#171019);
+  box-shadow:inset 0 0 0 2px var(--y),inset 0 0 0 4px #000,0 -3px 0 #000,0 3px 0 #000,-3px 0 0 #000,3px 0 0 #000,0 0 22px rgba(246,196,0,.25)}
+#card.mini{box-shadow:inset 0 0 0 2px var(--sky),inset 0 0 0 4px #000,0 -3px 0 #000,0 3px 0 #000,-3px 0 0 #000,3px 0 0 #000,0 0 22px rgba(125,211,252,.25)}
+#card::after{content:"";position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,rgba(0,0,0,.2) 0 1px,transparent 1px 3px)}
+.cport{grid-area:p;position:relative;width:clamp(78px,16dvh,118px);aspect-ratio:1;background:radial-gradient(circle at 50% 38%,#7a5d00 0,#3a2c00 45%,#16110a 100%);
+  box-shadow:inset 0 0 0 2px #000,0 0 0 2px var(--y);overflow:hidden}
+#card.mini .cport{background:radial-gradient(circle at 50% 38%,#1e5a7c 0,#123349 45%,#0a1620 100%);box-shadow:inset 0 0 0 2px #000,0 0 0 2px var(--sky)}
+.cport::before{content:"";position:absolute;inset:0;background:repeating-conic-gradient(from 0deg at 50% 100%,rgba(255,255,255,.07) 0 8deg,transparent 8deg 16deg)}
+#bigp{position:relative;width:100%;height:100%;image-rendering:pixelated;animation:bob .9s steps(2) infinite}
+#card.flip #bigp{animation:bob .9s steps(2) infinite,drop .25s steps(4)}
+@keyframes bob{50%{transform:translateY(-3px)}}
+@keyframes drop{from{transform:translateY(-14px) scale(.8);opacity:0}}
+#cNum{position:absolute;left:4px;top:4px;font-size:9px;color:var(--y);text-shadow:2px 2px 0 #000}
+.cbody{grid-area:b;min-width:0;display:flex;flex-direction:column;gap:6px;justify-content:center}
+#cName{font-family:'Bungee';font-size:clamp(17px,5.4vw,24px);line-height:1;color:var(--y);text-shadow:3px 3px 0 #000;white-space:nowrap;overflow:hidden}
+#cSub{font-size:7px;line-height:1.5;color:#fff;text-shadow:1px 1px 0 #000}
+#cTags{display:flex;flex-wrap:wrap;gap:4px}
+#cTags em{font-style:normal;font-size:5.5px;padding:3px 4px;background:#2b2b2b;color:#bbb}
+#cTags em.in{background:#22c55e;color:#000}
+#cTags em.mn{background:var(--sky);color:#000}
+#cTags em.cp{background:#fff;color:#000}
+#cTags em.sp{background:#e11d48;color:#fff}
+#cStats{grid-area:s;display:grid;grid-template-columns:1fr 1fr;gap:5px 14px;position:relative}
+.st{display:flex;align-items:center;justify-content:space-between;gap:5px}
+.st b{font-size:6px;font-weight:400;color:#cfc6b0;width:5.5em;flex:none}
+.st i{display:flex;gap:1px;flex:1;max-width:84px}
+.st s{flex:1;height:7px;background:#2a2430;display:block}
+.st s.f1{background:#ef4444}.st s.f2{background:var(--y)}.st s.f3{background:#4ade80}
+#cDesc{grid-area:d;position:relative;font-family:system-ui,sans-serif;font-size:12px;line-height:1.35;color:#e7dcc4;min-height:2.7em;
+  border-top:2px dashed #3d3448;padding-top:6px}
+#tabs{display:flex;gap:6px;width:100%;max-width:440px;flex:none}
+#tabs .rbtn{flex:1}
+.pcard[hidden],#cnote[hidden]{display:none}
+.pcard.mini{background:linear-gradient(#1c3550 55%,#245c31 55%)}
+.pcard.mini.on{background:linear-gradient(#0f5a80 55%,#3d6b14 55%)}
+#cnote{grid-column:1/-1;align-self:center;text-align:center;font-size:7px;line-height:2;color:var(--sky);text-shadow:2px 2px 0 #000}
+#cnote span{font-family:system-ui,sans-serif;font-size:11px;color:#e7dcc4;text-shadow:none}
+
+#pinfo{width:100%;max-width:440px;min-height:1.4em;flex:none;font-family:system-ui,sans-serif;font-size:11px;line-height:1.35;color:#e7dcc4;text-align:center}
 #pinfo b{color:var(--y)}
 .opts{width:100%;max-width:440px;flex:none;display:grid;gap:4px}
 .opt{display:flex;align-items:center;gap:6px;font-size:7px;color:#ddd}
@@ -155,6 +195,21 @@ button{font-family:inherit;cursor:pointer}
 .seg .rbtn{flex:1}
 .nav{display:flex;gap:10px;justify-content:center;width:100%;max-width:440px;flex:none}
 .nav #startBtn{flex:1}
+
+/* admin */
+#admin{justify-content:flex-start;overflow-y:auto;padding-top:calc(env(safe-area-inset-top) + 18px)}
+.adbox{width:100%;max-width:380px;display:flex;flex-direction:column;gap:10px;padding:14px;background:#0d0d0d;flex:none;
+  box-shadow:inset 0 0 0 2px var(--y),0 -3px 0 #000,0 3px 0 #000,-3px 0 0 #000,3px 0 0 #000}
+.adbox[hidden]{display:none}
+.adbox label{display:flex;flex-direction:column;gap:5px;font-size:7px;color:var(--y)}
+.adbox input,.adbox textarea{width:100%;font-family:system-ui,sans-serif;font-size:16px;color:#fff;background:#1b1622;border:0;padding:8px 9px;
+  box-shadow:inset 0 0 0 2px #5a5040;border-radius:0;-webkit-user-select:text;user-select:text;outline:0}
+.adbox input:focus,.adbox textarea:focus{box-shadow:inset 0 0 0 2px var(--y)}
+.adbox textarea{resize:none;font-size:14px}
+.adgrid{display:grid;grid-template-columns:.8fr 1.1fr 1fr;gap:8px}
+.admsg{min-height:2.4em;font-family:system-ui,sans-serif;font-size:12px;line-height:1.35;color:#e7dcc4}
+.admsg.err{color:#fca5a5}.admsg.ok{color:#86efac}
+.adbox .row{justify-content:space-between}
 
 h2{font-family:'Bungee';font-size:24px;color:var(--y);text-shadow:3px 3px 0 #000;margin:6px 0 4px}
 .help{width:100%;max-width:380px;margin:6px 0;font-family:system-ui,sans-serif;font-size:13px;line-height:1.55;color:#e7dcc4;background:#0007;padding:10px 12px;
@@ -178,7 +233,7 @@ h2{font-family:'Bungee';font-size:24px;color:var(--y);text-shadow:3px 3px 0 #000
       <span class="score" id="s0" style="color:var(--y)">0</span>
       <span id="clock">2:00</span>
       <span class="score" id="s1" style="color:var(--sky)">0</span>
-      <span class="tm uni">UNI<span class="dot"></span></span>
+      <span class="tm uni"><span id="hudRival">UNI</span><span class="dot"></span></span>
     </div>
     <button class="rbtn dark" id="muteBtn" aria-label="Sonido">♪</button>
   </header>
@@ -202,27 +257,27 @@ h2{font-family:'Bungee';font-size:24px;color:var(--y);text-shadow:3px 3px 0 #000
 
   <!-- PORTADA (estilo cartel) -->
   <section class="screen show" id="title">
-    <div class="ribbon"><span class="dash"><s></s><s></s><s></s><u></u></span><b>JORNADA 4</b><span class="dash r"><s></s><s></s><s></s><u></u></span></div>
+    <div class="ribbon"><span class="dash"><s></s><s></s><s></s><u></u></span><b id="jTitle">JORNADA 4</b><span class="dash r"><s></s><s></s><s></s><u></u></span></div>
     <div class="matchup">
       <img class="crest" src="crest.svg" alt="Escudo BPG Fuenlabrada">
       <div class="tname">BPG<br>FUENLABRADA</div>
       <div class="vs">VS</div>
-      <div class="tname">UNIÓN<br>FUENLABRADA FS</div>
-      <svg class="crest" viewBox="0 0 64 64" aria-label="Unión Fuenlabrada FS">
+      <div class="tname" id="jRival">UNIÓN<br>FUENLABRADA FS</div>
+      <svg class="crest" id="rcrest" viewBox="0 0 64 64" aria-label="Escudo rival">
         <path d="M8,6 H56 V30 C56,46 45,55 32,60 C19,55 8,46 8,30 Z" fill="#0c2a44" stroke="#7dd3fc" stroke-width="3.5"/>
         <path d="M12,10 H52 V20 H12 Z" fill="#7dd3fc"/>
-        <text x="32" y="18" font-family="Bungee,Arial Black" font-size="8" fill="#0c2a44" text-anchor="middle">UNIÓN</text>
+        <text id="rcTop" x="32" y="18" font-family="Bungee,Arial Black" font-size="8" fill="#0c2a44" text-anchor="middle">UNIÓN</text>
         <circle cx="32" cy="36" r="10" fill="#fff" stroke="#7dd3fc" stroke-width="2"/>
         <polygon points="32,31.5 36.3,34.6 34.6,39.6 29.4,39.6 27.7,34.6" fill="#0c2a44"/>
-        <text x="32" y="55" font-family="Arial Black,Arial" font-weight="900" font-size="6" fill="#7dd3fc" text-anchor="middle">FS</text>
+        <text id="rcBot" x="32" y="55" font-family="Arial Black,Arial" font-weight="900" font-size="6" fill="#7dd3fc" text-anchor="middle">FS</text>
       </svg>
     </div>
     <div class="info">
-      <span><svg viewBox="0 0 16 16"><rect x="1.5" y="3" width="13" height="11.5" fill="none" stroke="#f6c400" stroke-width="2"/><rect x="1.5" y="3" width="13" height="3.5" fill="#f6c400"/><rect x="4" y="1" width="2" height="3" fill="#f6c400"/><rect x="10" y="1" width="2" height="3" fill="#f6c400"/><rect x="4" y="9" width="2" height="2" fill="#f6c400"/><rect x="7" y="9" width="2" height="2" fill="#f6c400"/><rect x="10" y="9" width="2" height="2" fill="#f6c400"/></svg>8/11/26</span>
+      <span><svg viewBox="0 0 16 16"><rect x="1.5" y="3" width="13" height="11.5" fill="none" stroke="#f6c400" stroke-width="2"/><rect x="1.5" y="3" width="13" height="3.5" fill="#f6c400"/><rect x="4" y="1" width="2" height="3" fill="#f6c400"/><rect x="10" y="1" width="2" height="3" fill="#f6c400"/><rect x="4" y="9" width="2" height="2" fill="#f6c400"/><rect x="7" y="9" width="2" height="2" fill="#f6c400"/><rect x="10" y="9" width="2" height="2" fill="#f6c400"/></svg><span id="jDate">8/11/26</span></span>
       <i></i>
-      <span><svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="6.5" fill="none" stroke="#f6c400" stroke-width="2"/><path d="M8,4 V8 L11,10" stroke="#f6c400" stroke-width="2" fill="none"/></svg>10:30h</span>
+      <span><svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="6.5" fill="none" stroke="#f6c400" stroke-width="2"/><path d="M8,4 V8 L11,10" stroke="#f6c400" stroke-width="2" fill="none"/></svg><span id="jTime">10:30h</span></span>
       <i></i>
-      <span><svg viewBox="0 0 16 16"><path d="M8,15 C8,15 2.5,9 2.5,6 A5.5,5.5 0 0,1 13.5,6 C13.5,9 8,15 8,15 Z" fill="#f6c400"/><circle cx="8" cy="6" r="2.2" fill="#1d1520"/></svg>P. FERNANDO TORRES (1)</span>
+      <span><svg viewBox="0 0 16 16"><path d="M8,15 C8,15 2.5,9 2.5,6 A5.5,5.5 0 0,1 13.5,6 C13.5,9 8,15 8,15 Z" fill="#f6c400"/><circle cx="8" cy="6" r="2.2" fill="#1d1520"/></svg><span id="jPlace">P. FERNANDO TORRES (1)</span></span>
     </div>
     <div class="scene"><canvas id="hero" width="360" height="392"></canvas></div>
     <button class="rbtn big blink" id="toSquad">▶ PRESS START</button>
@@ -231,7 +286,18 @@ h2{font-family:'Bungee';font-size:24px;color:var(--y);text-shadow:3px 3px 0 #000
   <!-- ELEGIR QUINTETO -->
   <section class="screen" id="squad">
     <div class="ribbon sm"><span class="dash"><s></s><s></s><u></u></span><b>TU QUINTETO</b><span class="dash r"><s></s><s></s><u></u></span></div>
+    <div id="card">
+      <div class="cport"><canvas id="bigp" width="64" height="64"></canvas><span id="cNum"></span></div>
+      <div class="cbody">
+        <div id="cName"></div>
+        <div id="cSub"></div>
+        <div id="cTags"></div>
+      </div>
+      <div id="cStats"></div>
+      <p id="cDesc"></p>
+    </div>
     <div id="slots"></div>
+    <div id="tabs"><button class="rbtn sm on" data-t="main">PLANTILLA</button><button class="rbtn sm dark" data-t="mini">CANTERA</button></div>
     <div id="roster"></div>
     <div id="pinfo"></div>
     <div class="opts">
@@ -241,6 +307,30 @@ h2{font-family:'Bungee';font-size:24px;color:var(--y);text-shadow:3px 3px 0 #000
         <button class="rbtn dark sm" data-v="90">1:30</button><button class="rbtn dark sm" data-v="120">2:00</button><button class="rbtn dark sm" data-v="180">3:00</button></div></div>
     </div>
     <div class="nav"><button class="rbtn dark" id="backBtn">◀</button><button class="rbtn" id="startBtn">¡AL CAMPO! ▶</button></div>
+  </section>
+
+  <!-- ADMIN: actualizar la jornada -->
+  <section class="screen dim" id="admin">
+    <h2>MODO ADMIN</h2>
+    <form class="adbox" id="adLogin" autocomplete="off">
+      <label>USUARIO<input id="adUser" autocomplete="username" autocapitalize="off" autocorrect="off" spellcheck="false"></label>
+      <label>CLAVE<input id="adPass" type="password" autocomplete="current-password"></label>
+      <div class="admsg" id="adMsg1"></div>
+      <div class="row"><button class="rbtn" type="submit">ENTRAR</button><button class="rbtn dark" type="button" data-close>SALIR</button></div>
+    </form>
+    <form class="adbox" id="adForm" hidden autocomplete="off">
+      <label>PEGAR MENSAJE (WHATSAPP / INSTAGRAM)<textarea id="adText" rows="3" placeholder="Jornada 5 · BPG vs Rival · 15/11 · 11:00 · Pabellón..."></textarea></label>
+      <button class="rbtn sm" type="button" id="adParse">✨ INTERPRETAR MENSAJE</button>
+      <div class="adgrid">
+        <label>JORNADA<input id="adN" inputmode="numeric" maxlength="2"></label>
+        <label>FECHA<input id="adFecha" maxlength="12" placeholder="8/11/26"></label>
+        <label>HORA<input id="adHora" maxlength="8" placeholder="10:30"></label>
+      </div>
+      <label>RIVAL<input id="adRival" maxlength="40"></label>
+      <label>LUGAR<input id="adLugar" maxlength="50"></label>
+      <div class="admsg" id="adMsg2"></div>
+      <div class="row"><button class="rbtn" type="submit">GUARDAR</button><button class="rbtn dark" type="button" data-close>CERRAR</button></div>
+    </form>
   </section>
 
   <!-- PAUSA -->

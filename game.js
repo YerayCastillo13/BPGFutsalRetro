@@ -36,6 +36,19 @@ const ROSTER = [
     spd: 1.05, shot: 1.2, ctrl: 1.25, tackle: 1.0, pass: 1.05, gk: 1.1, quack: true },
   { num: 23, name: 'ORMEÑO',    look: 'wrist',   short: 'La torre',          trait: 'Corpulento: gana los choques y protege el balón.',
     spd: .92, shot: 1.2, ctrl: 1.3, tackle: 1.45, pass: 1.0, gk: 1.3, big: true },
+  // ---- CANTERA: mini patos (más pequeños, rápidos y con mucha ilusión) ----
+  { num: 30, name: 'HUGO',      look: 'spiky',    mini: true, short: 'Torbellino',      trait: 'Pequeño huracán de pelo en pico: no para ni un segundo.',
+    spd: 1.28, shot: .85, ctrl: 1.1, tackle: .85, pass: .95, gk: .85 },
+  { num: 31, name: 'LUCAS',     look: 'beanie',   mini: true, short: 'Cabeza fría',     trait: 'Con su gorro de lana nunca pierde la calma. Pases certeros.',
+    spd: 1.1, shot: .95, ctrl: 1.1, tackle: .95, pass: 1.3, gk: .9 },
+  { num: 32, name: 'MARIO',     look: 'mcap',     mini: true, short: 'Saltarín',        trait: 'Gorra roja y piernas de muelle: llega a todos los balones.',
+    spd: 1.2, shot: .95, ctrl: 1.05, tackle: 1.1, pass: 1.0, gk: .95 },
+  { num: 33, name: 'MIA',       look: 'bow',      mini: true, short: 'Estrellita',      trait: 'Regatea a todos con su lazo rosa. Casi no se le quita el balón.',
+    spd: 1.1, shot: .9, ctrl: 1.45, tackle: .85, pass: 1.1, gk: .85 },
+  { num: 34, name: 'SOFIA', full: 'SOFÍA', look: 'pigtails', mini: true, short: 'Rayo',            trait: 'Dos coletas al viento y un sprint que no se acaba.',
+    spd: 1.3, shot: .9, ctrl: 1.05, tackle: .9, pass: 1.0, gk: .85, dashCd: .5 },
+  { num: 35, name: 'SOFIA G.', full: 'SOFÍA G.',look: 'ponytail', mini: true, short: 'Cañoncito',       trait: 'Pega como una mayor: tiros secos desde donde sea.',
+    spd: 1.05, shot: 1.25, ctrl: 1.0, tackle: .9, pass: .95, gk: .9 },
 ];
 const SLOTS = ['gk', 'def', 'wl', 'wr', 'piv'];
 const SLOT_LBL = ['POR', 'CIE', 'ALA', 'ALA', 'PÍV'];
@@ -50,6 +63,7 @@ const RIVAL = [
   { num: 9,  name: 'PÍVOT',   role: 'piv', spd: 1.0, shot: 1.15, ctrl: 1, tackle: 1, pass: 1 },
 ];
 const HOME = { gk: [CX, 434], def: [CX, 378], wl: [64, 326], wr: [206, 326], piv: [CX, 272] };
+const RV = { hud: 'UNI', saca: 'UNIÓN', gol: 'UNIÓN FS' }; // nombre del rival (se actualiza con la jornada)
 const DIFFS = {
   // react: probabilidad/seg de que la IA tome decisiones (tirar/pasar) — más bajo = más tiempo para ti
   easy:   { spd: .74, tackle: .3,  gk: .8,  shoot: .75, react: .55 },
@@ -123,7 +137,7 @@ function newP(d, team) {
   const hx = team ? VW - h[0] : h[0], hy = team ? VH - h[1] : h[1];
   return Object.assign({}, d, {
     team, hx, hy, x: hx, y: hy, vx: 0, vy: 0, tvx: 0, tvy: 0, fx: 0, fy: team ? 1 : -1,
-    r: (d.role === 'gk' ? 9 : 8) + (d.big ? 1 : 0), stun: 0, dash: 0, dashT: 0, dashHit: false, anim: rnd(6),
+    r: (d.role === 'gk' ? 9 : 8) + (d.big ? 1 : 0) - (d.mini ? 1.5 : 0), stun: 0, dash: 0, dashT: 0, dashHit: false, anim: rnd(6),
     holdT: 0, charge: 0, charging: false, react: 0, reach: d.role === 'gk' ? (d.reach || d.gk || 1) : 1, dashCdBase: d.dashCd || .75,
   });
 }
@@ -176,14 +190,14 @@ function kickoff(t) {
   take(kicker, true); b.protect = 1.4;
   G.user = G.players.find(p => p.team === 0 && p.role === 'piv');
   G.state = 'ready'; G.timer = 1.2;
-  banner(t === 0 ? 'SACA BPG' : 'SACA UNIÓN', '', t === 0 ? 'small' : 'small blue');
+  banner(t === 0 ? 'SACA BPG' : 'SACA ' + RV.saca, '', t === 0 ? 'small' : 'small blue');
   sfx.whistle(1);
 }
 function goal(t) {
   const b = G.ball;
   G.score[t]++; G.state = 'goal'; G.timer = 2.9; G.shake = .5; G.crowdJump = 3; G.concede = 1 - t;
   const s = b.shooter;
-  const name = s && s.team === t ? (t === 0 ? s.name : 'UNIÓN FS') : 'EN PROPIA PUERTA';
+  const name = s && s.team === t ? (t === 0 ? s.name : RV.gol) : 'EN PROPIA PUERTA';
   if (t === 0) G.scorers.push(s && s.team === 0 ? s.name : 'EN PROPIA');
   const mm = Math.floor((G.dur - G.time) / 60), ss = Math.floor((G.dur - G.time) % 60);
   banner(t === 0 ? '¡GOOOL!' : 'GOL RIVAL', name + "  " + mm + "'" + String(ss).padStart(2, '0'), t === 0 ? '' : 'blue');
@@ -678,7 +692,7 @@ function drawDuck(p) {
     if (p.look === 'wrist') circ(wx, wy, 1.3, '#fff');
   }
   // cabeza
-  const hx = x + fx * 1.6, hy = y + fy * 1.6, hr = r * .62;
+  const hx = x + fx * 1.6, hy = y + fy * 1.6, hr = r * (p.mini ? .8 : .62);
   const L = p.look;
   const line = (col, w, x1, y1, x2, y2) => { ctx.strokeStyle = col; ctx.lineWidth = w; ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke(); };
   const ring = (col, w, rr) => { ctx.strokeStyle = col; ctx.lineWidth = w; ctx.beginPath(); ctx.arc(hx, hy, rr, 0, 7); ctx.stroke(); };
@@ -702,6 +716,17 @@ function drawDuck(p) {
     ctx.fillStyle = '#dc2626'; ctx.fillRect(hx - fx - .6, hy - fy - .6, 1.2, 1.2);
   }
   if (L === 'beard') { ctx.strokeStyle = '#4a2c17'; ctx.lineWidth = 1.6; ctx.beginPath(); const a = Math.atan2(fy, fx); ctx.arc(hx, hy, hr - .3, a - 1.2, a + 1.2); ctx.stroke(); }
+  // looks de la cantera
+  if (L === 'spiky') { for (const s of [-1, 0, 1]) line('#7c4a21', 1.6, hx + px * s * 2, hy + py * s * 2, hx - fx * (hr + 2) + px * s * 3.2, hy - fy * (hr + 2) + py * s * 3.2); }
+  if (L === 'beanie' || L === 'mcap') {
+    const a = Math.atan2(fy, fx), col = L === 'mcap' ? '#dc2626' : '#38bdf8';
+    ctx.fillStyle = col; ctx.beginPath(); ctx.arc(hx, hy, hr + .4, a + Math.PI / 2, a + Math.PI * 1.5); ctx.fill();
+    if (L === 'beanie') circ(hx - fx * (hr + .6), hy - fy * (hr + .6), 1.7, '#fff');
+    else { ctx.fillStyle = '#7f1d1d'; ctx.fillRect(hx + fx * hr * .55 - 1.2, hy + fy * hr * .55 - 1.2, 2.4, 2.4); circ(hx - fx * .4, hy - fy * .4, 1.2, '#fff'); }
+  }
+  if (L === 'bow') { for (const s of [-1, 1]) circ(hx - fx * hr * .5 + px * s * (hr * .8), hy - fy * hr * .5 + py * s * (hr * .8), 1.9, '#ec4899'); circ(hx - fx * hr * .5, hy - fy * hr * .5, 1.2, '#be185d'); }
+  if (L === 'pigtails') { for (const s of [-1, 1]) { circ(hx + px * s * (hr + 1.2), hy + py * s * (hr + 1.2) - fy * .5, 2, '#7c4a21'); circ(hx + px * s * (hr - .2), hy + py * s * (hr - .2), .9, '#ef4444'); } }
+  if (L === 'ponytail') { const w = Math.sin(G.t * 12) * 1.4; line('#d6a23a', 2.2, hx - fx * hr, hy - fy * hr, hx - fx * (hr + 5) + px * w, hy - fy * (hr + 5) + py * w); circ(hx - fx * hr, hy - fy * hr, 1.1, '#ec4899'); }
   // ojos
   const ex = hx + fx * hr * .4, ey = hy + fy * hr * .4;
   if (L === 'shades') {
@@ -779,7 +804,8 @@ function drawPortrait(canvas, d, t = 0) {
   const E = (x, y, rx, ry, col) => { c.fillStyle = col; c.beginPath(); c.ellipse(x, y, rx, ry, 0, 0, Math.PI * 2); c.fill(); };
   const R = (x, y, w, h, col, rad = 0) => { c.fillStyle = col; c.beginPath(); if (c.roundRect && rad) c.roundRect(x, y, w, h, rad); else c.rect(x, y, w, h); c.fill(); };
   const T = (pts, col) => { c.fillStyle = col; c.beginPath(); c.moveTo(pts[0], pts[1]); for (let i = 2; i < pts.length; i += 2) c.lineTo(pts[i], pts[i + 1]); c.fill(); };
-  // torso
+  // torso (en los mini, cuerpo más pequeño y cabezón)
+  if (d.mini) { c.save(); c.translate(32, 44); c.scale(.8, .8); c.translate(-32, -44); }
   R(7, 41, 50, 26, trim, 12);
   R(14, 43, 36, 24, jersey, 6);
   T([25, 43, 39, 43, 32, 50], trim);
@@ -791,6 +817,7 @@ function drawPortrait(canvas, d, t = 0) {
   if (gk) { C(12, 54, 6, '#f8fafc'); C(52, 54, 6, '#f8fafc'); C(12, 54, 2.5, jersey); C(52, 54, 2.5, jersey); }
   if (d.captain) { R(8, 50, 9, 5, '#fff', 1); c.fillStyle = '#000'; c.font = 'bold 6px monospace'; c.textAlign = 'center'; c.fillText('C', 12.5, 55); }
   if (L === 'wrist' && !gk) { R(8, 50, 9, 5, '#fff', 1); R(47, 50, 9, 5, '#fff', 1); }
+  if (d.mini) c.restore();
   // cabeza
   if (L === 'afro') { C(32, 21, 22, '#3b2414'); C(14, 18, 6, '#3b2414'); C(50, 18, 6, '#3b2414'); }
   C(32, 25, 17, feaD); C(32, 25, 16, fea);
@@ -800,7 +827,7 @@ function drawPortrait(canvas, d, t = 0) {
     for (let x = 50; x >= 14; x -= 4) c.lineTo(x, x % 8 ? 13 : 16);
     c.closePath(); c.fill(); c.restore();
   }
-  if (!['cap', 'crown', 'curl', 'afro', 'buzz'].includes(L)) { T([27, 11, 31, 1, 34, 11], fea); T([32, 11, 39, 4, 37, 12], fea); }
+  if (!['cap', 'crown', 'curl', 'afro', 'buzz', 'spiky', 'beanie', 'mcap', 'bow', 'pigtails', 'ponytail'].includes(L)) { T([27, 11, 31, 1, 34, 11], fea); T([32, 11, 39, 4, 37, 12], fea); }
   if (L === 'band') { R(16, 11, 32, 5, '#e11d48', 2); R(46, 12, 11, 3, '#e11d48', 1); R(47, 16, 9, 3, '#be123c', 1); }
   if (L === 'bandana') {
     R(16, 10, 32, 7, '#2563eb', 3); c.fillStyle = '#fff'; [20, 26, 32, 38, 44].forEach((x, i) => c.fillRect(x, 12 + (i % 2) * 2, 1.5, 1.5));
@@ -818,6 +845,29 @@ function drawPortrait(canvas, d, t = 0) {
     R(19, 5, 26, 7, '#eab308', 1);
     T([19, 6, 21, -3, 25, 6], '#eab308'); T([28, 6, 32, -4, 36, 6], '#eab308'); T([39, 6, 43, -3, 45, 6], '#eab308');
     C(32, 8.5, 1.8, '#dc2626'); C(24, 8.5, 1.3, '#2563eb'); C(40, 8.5, 1.3, '#16a34a');
+  }
+  if (L === 'spiky') { for (let i = 0; i < 5; i++) T([19 + i * 6.5, 11, 22 + i * 6.5, -2 + (i % 2) * 4, 25 + i * 6.5, 11], '#7c4a21'); }
+  if (L === 'beanie') {
+    c.fillStyle = '#38bdf8'; c.beginPath(); c.arc(32, 22, 16.6, Math.PI, 0); c.fill();
+    R(15, 17, 34, 6, '#0ea5e9', 2); c.fillStyle = '#0284c7'; for (let x = 18; x < 48; x += 5) c.fillRect(x, 17, 1.5, 6);
+    C(32, 5, 4.2, '#fff'); C(32, 5, 2.4, '#e0f2fe');
+  }
+  if (L === 'mcap') {
+    c.fillStyle = '#dc2626'; c.beginPath(); c.arc(32, 22, 16.6, Math.PI, 0); c.fill();
+    R(15, 19, 34, 3, '#dc2626'); R(44, 17, 15, 4, '#991b1b', 2);
+    C(32, 10, 5, '#fff'); c.fillStyle = '#dc2626'; c.font = 'bold 8px monospace'; c.textAlign = 'center'; c.fillText('M', 32, 13);
+  }
+  if (L === 'bow') {
+    c.fillStyle = '#7c4a21'; c.beginPath(); c.arc(32, 22, 16.6, Math.PI * 1.02, Math.PI * 1.98); c.fill();
+    T([46, 9, 57, 2, 57, 16], '#ec4899'); T([46, 9, 35, 2, 35, 16], '#ec4899'); C(46, 9, 3, '#be185d');
+  }
+  if (L === 'pigtails') {
+    C(11, 19, 7, '#7c4a21'); C(53, 19, 7, '#7c4a21'); C(14, 15, 2.2, '#ef4444'); C(50, 15, 2.2, '#ef4444');
+    c.fillStyle = '#7c4a21'; c.beginPath(); c.arc(32, 22, 16.6, Math.PI * 1.02, Math.PI * 1.98); c.fill();
+  }
+  if (L === 'ponytail') {
+    c.save(); c.translate(54, 14); c.rotate(.5); E(0, 8, 5, 11, '#d6a23a'); c.restore(); C(50, 12, 2.4, '#ec4899');
+    c.fillStyle = '#d6a23a'; c.beginPath(); c.arc(32, 22, 16.6, Math.PI * 1.02, Math.PI * 1.98); c.fill();
   }
   // ojos y cejas enfadadas
   if (L === 'shades') {
@@ -887,17 +937,23 @@ let lineup = (() => {
   return DEFAULT_LINEUP.slice();
 })();
 const cardEls = {};
-let focusNum = null;
+let focusNum = null, tab = 'main';
+const STATS = [['VEL', 'spd'], ['TIRO', 'shot'], ['REGATE', 'ctrl'], ['ENTRADA', 'tackle'], ['PASE', 'pass'], ['PORTERO', 'gk']];
+const segs = v => clamp(Math.round((v - .3) / 1.5 * 10), 1, 10);
 function buildSelect() {
   const grid = $('#roster'); grid.innerHTML = '';
   for (const d of ROSTER) {
-    const el = document.createElement('button'); el.type = 'button'; el.className = 'pcard';
+    const el = document.createElement('button'); el.type = 'button'; el.className = 'pcard' + (d.mini ? ' mini' : '');
     el.innerHTML = `<span class="pnum">${d.num}${d.captain ? ' <i class="cap">C</i>' : ''}</span><span class="ptag"></span>`;
     const cvs = document.createElement('canvas'); drawPortrait(cvs, d, 0); el.appendChild(cvs);
     const nm = document.createElement('span'); nm.className = 'pname'; nm.textContent = d.name; el.appendChild(nm);
     el.addEventListener('click', () => pickPlayer(d.num));
     grid.appendChild(el); cardEls[d.num] = el;
   }
+  const note = document.createElement('div'); note.id = 'cnote';
+  note.innerHTML = '★ LA CANTERA DEL BPG ★<br><span>Pequeños, rápidos y con mucha ilusión.</span>';
+  grid.appendChild(note);
+  document.querySelectorAll('#tabs .rbtn').forEach(b => b.addEventListener('click', () => { audio(); tone(440, .04, 'square', .04); setTab(b.dataset.t); }));
   const slots = $('#slots'); slots.innerHTML = '';
   SLOT_LBL.forEach((lbl, i) => {
     const s = document.createElement('button'); s.type = 'button'; s.className = 'slot';
@@ -910,6 +966,13 @@ function buildSelect() {
   });
   refreshSelect();
 }
+function setTab(t) {
+  tab = t;
+  document.querySelectorAll('#tabs .rbtn').forEach(b => b.classList.toggle('on', b.dataset.t === t));
+  document.querySelectorAll('#tabs .rbtn').forEach(b => b.classList.toggle('dark', b.dataset.t !== t));
+  for (const d of ROSTER) cardEls[d.num].hidden = !!d.mini !== (t === 'mini');
+  $('#cnote').hidden = t !== 'mini';
+}
 function shake(el) { el.classList.remove('shake'); void el.offsetWidth; el.classList.add('shake'); }
 function pickPlayer(n) {
   audio(); focusNum = n;
@@ -917,10 +980,34 @@ function pickPlayer(n) {
   if (i >= 0) { lineup[i] = null; tone(300, .05, 'square', .04); }
   else {
     const e = lineup.indexOf(null);
-    if (e < 0) { shake($('#slots')); tone(150, .1, 'square', .05); refreshSelect('<b>Quinteto completo.</b><br>Toca un hueco de arriba para liberarlo.'); return; }
+    if (e < 0) { shake($('#slots')); tone(150, .1, 'square', .05); refreshSelect('<b>Quinteto completo.</b> Toca un hueco de arriba para liberarlo.'); return; }
     lineup[e] = n; tone(520 + e * 80, .06, 'square', .05);
   }
   refreshSelect();
+}
+function showCard(f) {
+  const i = lineup.indexOf(f.num), role = i >= 0 ? SLOTS[i] : 'x';
+  drawPortrait($('#bigp'), Object.assign({}, f, { role }), 0);
+  const card = $('#card'); card.classList.toggle('mini', !!f.mini);
+  card.classList.remove('flip'); void card.offsetWidth; card.classList.add('flip');
+  $('#cNum').textContent = '#' + f.num;
+  $('#cName').textContent = f.full || f.name;
+  $('#cSub').textContent = f.short;
+  const tags = [];
+  tags.push(i >= 0 ? `<em class="in">EN CAMPO · ${SLOT_LBL[i]}</em>` : '<em>BANQUILLO</em>');
+  if (f.mini) tags.push('<em class="mn">MINI</em>');
+  if (f.captain) tags.push('<em class="cp">CAPITÁN</em>');
+  if (f.fire) tags.push('<em class="sp">🔥 FUEGO</em>');
+  if (f.curve) tags.push('<em class="sp">↻ EFECTO</em>');
+  if (f.quack) tags.push('<em class="sp">¡CUAC!</em>');
+  if (f.big) tags.push('<em class="sp">TORRE</em>');
+  if (f.gk >= 1.3) tags.push('<em class="sp">PORTERO</em>');
+  $('#cTags').innerHTML = tags.join('');
+  $('#cStats').innerHTML = STATS.map(([lbl, k]) => {
+    const n = segs(f[k]);
+    return `<div class="st"><b>${lbl}</b><i>${Array.from({ length: 10 }, (_, j) => `<s class="${j < n ? 'f' + (n >= 8 ? 3 : n >= 5 ? 2 : 1) : ''}"></s>`).join('')}</i></div>`;
+  }).join('');
+  $('#cDesc').textContent = f.trait;
 }
 function refreshSelect(msg) {
   store.set('bpg_lineup', lineup);
@@ -935,11 +1022,10 @@ function refreshSelect(msg) {
     if (n != null) { drawPortrait(cv, Object.assign({}, byNum(n), { role: SLOTS[i] }), 0); s.querySelector('.sname').textContent = byNum(n).name; }
     else { cv.width = 64; s.querySelector('.sname').textContent = '+'; }
   });
-  const f = focusNum != null ? byNum(focusNum) : null;
-  $('#pinfo').innerHTML = msg || (f
-    ? `<b>#${f.num} ${f.name}</b> · ${f.short}<br>${f.trait}${f.gk >= 1.3 ? ' <i>Buen portero.</i>' : ''}`
-    : 'Toca a 5 jugadores. Van entrando en orden: <b>el primero es el portero</b>.');
+  if (focusNum == null) focusNum = lineup.find(n => n != null) ?? ROSTER[0].num;
+  showCard(byNum(focusNum));
   const left = lineup.filter(n => n == null).length;
+  $('#pinfo').innerHTML = msg || (left ? 'Toca jugadores para ficharlos. <b>El primero es el portero.</b>' : '<b>¡Quinteto listo!</b> Toca a un jugador para cambiarlo.');
   $('#startBtn').classList.toggle('off', left > 0);
   $('#startBtn').textContent = left ? `FALTAN ${left}` : '¡AL CAMPO! ▶';
 }
@@ -1177,7 +1263,7 @@ document.addEventListener('contextmenu', e => e.preventDefault());
 
 const keys = {};
 window.addEventListener('keydown', e => {
-  if (e.repeat) return;
+  if (e.repeat || (e.target.closest && e.target.closest('input,textarea'))) return;
   keys[e.code] = true; audio();
   if (['Space', 'KeyJ', 'KeyK'].includes(e.code)) { input.aDown = true; input.aHeld = true; e.preventDefault(); }
   if (['KeyX', 'KeyL', 'ShiftLeft', 'ShiftRight'].includes(e.code)) input.bDown = true;
@@ -1205,7 +1291,7 @@ $('#resumeBtn').addEventListener('click', togglePause);
 $('#quitBtn').addEventListener('click', () => { G.state = 'menu'; hideBanner(); showScreen('title'); });
 $('#muteBtn').addEventListener('click', () => { S.on = !S.on; store.set('bpg_sound', S.on); $('#muteBtn').style.opacity = S.on ? 1 : .4; audio(); });
 $('#muteBtn').style.opacity = S.on ? 1 : .4;
-$('#toSquad').addEventListener('click', () => { audio(); sfx.quack(); focusNum = null; refreshSelect(); showScreen('squad'); });
+$('#toSquad').addEventListener('click', () => { audio(); sfx.quack(); focusNum = null; setTab('main'); refreshSelect(); showScreen('squad'); });
 $('#backBtn').addEventListener('click', () => showScreen('title'));
 $('#startBtn').addEventListener('click', () => {
   if (lineup.some(n => n == null)) { shake($('#slots')); tone(150, .1, 'square', .05); return; }
@@ -1214,6 +1300,122 @@ $('#startBtn').addEventListener('click', () => {
 $('#againBtn').addEventListener('click', startMatch);
 $('#menuBtn').addEventListener('click', () => { G.state = 'menu'; showScreen('title'); });
 document.addEventListener('visibilitychange', () => { if (document.hidden && ['play', 'ready', 'goal'].includes(G.state)) togglePause(); });
+
+// ================== JORNADA (cartel) + MODO ADMIN ==================
+const JDEF = { n: 4, rival: 'UNIÓN FUENLABRADA FS', fecha: '8/11/26', hora: '10:30', lugar: 'P. FERNANDO TORRES (1)' };
+let J = Object.assign({}, JDEF);
+const norm = s => String(s).normalize('NFD').replace(/[̀-ͯ]/g, '').toUpperCase();
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+function applyJornada(j) {
+  J = Object.assign({}, JDEF, j || {});
+  $('#jTitle').textContent = 'JORNADA ' + J.n;
+  // rival en dos líneas equilibradas
+  const words = String(J.rival).trim().split(/\s+/);
+  let best = 1, bd = 1e9;
+  for (let k = 1; k < words.length; k++) { const d = Math.abs(words.slice(0, k).join(' ').length - words.slice(k).join(' ').length); if (d < bd) { bd = d; best = k; } }
+  $('#jRival').innerHTML = words.length > 1 ? esc(words.slice(0, best).join(' ')) + '<br>' + esc(words.slice(best).join(' ')) : esc(words[0] || '');
+  $('#jDate').textContent = J.fecha || '--';
+  $('#jTime').textContent = J.hora ? J.hora.replace(/h$/i, '') + 'h' : '--';
+  $('#jPlace').textContent = J.lugar || '--';
+  const isUni = norm(J.rival).includes('UNION FUENLABRADA');
+  const key = words.find(w => norm(w).length > 2) || words[0] || 'RIVAL';
+  RV.hud = isUni ? 'UNI' : norm(key).slice(0, 3);
+  RV.saca = isUni ? 'UNIÓN' : key;
+  RV.gol = isUni ? 'UNIÓN FS' : String(J.rival).slice(0, 16);
+  $('#hudRival').textContent = RV.hud;
+  $('#rcTop').textContent = isUni ? 'UNIÓN' : key.slice(0, 7);
+  $('#rcBot').textContent = isUni ? 'FS' : '';
+}
+async function loadJornada() {
+  const c = store.get('bpg_jornada', null); if (c) applyJornada(c);
+  try {
+    const r = await fetch('api/jornada', { cache: 'no-store' });
+    if (!r.ok) return;
+    const j = await r.json();
+    if (j.jornada) { applyJornada(j.jornada); store.set('bpg_jornada', j.jornada); }
+  } catch (e) { /* sin servidor: nos quedamos con la caché o el cartel por defecto */ }
+}
+
+// Admin: mantener pulsado POWER o RESET de la consola (portada) 1,5 s
+(() => {
+  const hero = $('#hero'); let t = null;
+  const inBtn = e => {
+    const r = hero.getBoundingClientRect(), s = Math.min(r.width / SW, r.height / SH);
+    const x = (e.clientX - r.left - (r.width - SW * s) / 2) / s, y = (e.clientY - r.top - (r.height - SH * s) / 2) / s;
+    return y > 344 && y < 370 && ((x > 118 && x < 158) || (x > 202 && x < 242));
+  };
+  hero.addEventListener('pointerdown', e => {
+    if (!inBtn(e)) return;
+    audio(); tone(200, .06, 'square', .03);
+    clearTimeout(t); t = setTimeout(() => { t = null; tone(880, .08, 'square', .05); tone(1320, .12, 'square', .05, 0, .09); openAdmin(); }, 1500);
+  });
+  for (const ev of ['pointerup', 'pointerleave', 'pointercancel']) hero.addEventListener(ev, () => { clearTimeout(t); t = null; });
+})();
+
+const ad = { user: '', pass: '', fails: 0, lock: 0 };
+const adMsg = (id, txt, cls = '') => { const el = $(id); el.textContent = txt; el.className = 'admsg ' + cls; };
+const AD_ERR = {
+  BAD_CREDENTIALS: 'Usuario o clave incorrectos.', TOO_MANY_ATTEMPTS: 'Demasiados intentos. Espera 15 minutos.',
+  ADMIN_NOT_CONFIGURED: 'Falta configurar ADMIN_USER y ADMIN_PASS en Vercel.', REDIS_NOT_CONFIGURED: 'Falta conectar la base de datos (Upstash) en Vercel.',
+  INVALID_DATA: 'Datos no válidos: hace falta jornada y rival.', SERVER_ERROR: 'Error del servidor. Inténtalo de nuevo.',
+};
+async function adPost(path, body) {
+  try {
+    const r = await fetch(path, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+    let j = {}; try { j = await r.json(); } catch (e) { /* respuesta no JSON */ }
+    if (!r.ok && !j.error) j.error = r.status === 404 || r.status === 405 ? 'NO_SERVER' : 'SERVER_ERROR';
+    return { ok: r.ok, status: r.status, j };
+  } catch (e) { return { ok: false, status: 0, j: { error: 'NO_SERVER' } }; }
+}
+const adErr = e => e === 'NO_SERVER' ? 'Sin conexión con el servidor. En local usa "npx vercel dev".' : (AD_ERR[e] || AD_ERR.SERVER_ERROR);
+function openAdmin() {
+  ad.user = ad.pass = ''; $('#adUser').value = $('#adPass').value = '';
+  $('#adLogin').hidden = false; $('#adForm').hidden = true; adMsg('#adMsg1', '');
+  showScreen('admin');
+}
+function closeAdmin() { ad.user = ad.pass = ''; $('#adUser').value = $('#adPass').value = ''; $('#adText').value = ''; showScreen('title'); }
+document.querySelectorAll('#admin [data-close]').forEach(b => b.addEventListener('click', closeAdmin));
+$('#adLogin').addEventListener('submit', async e => {
+  e.preventDefault();
+  if (Date.now() < ad.lock) { adMsg('#adMsg1', 'Bloqueado unos segundos. Espera un poco.', 'err'); return; }
+  const user = $('#adUser').value.trim(), pass = $('#adPass').value;
+  adMsg('#adMsg1', 'Comprobando…');
+  const r = await adPost('api/jornada', { user, pass, action: 'login' });
+  if (r.ok) {
+    ad.user = user; ad.pass = pass; ad.fails = 0;
+    $('#adPass').value = '';
+    $('#adN').value = J.n; $('#adFecha').value = J.fecha; $('#adHora').value = J.hora; $('#adRival').value = J.rival; $('#adLugar').value = J.lugar;
+    adMsg('#adMsg2', ''); $('#adLogin').hidden = true; $('#adForm').hidden = false; tone(660, .08, 'square', .05);
+  } else if (r.status === 401) {
+    ad.fails++; tone(150, .15, 'square', .06);
+    if (ad.fails >= 3) { ad.lock = Date.now() + 30000; ad.fails = 0; adMsg('#adMsg1', 'Tres intentos fallidos. Bloqueado 30 s.', 'err'); }
+    else adMsg('#adMsg1', adErr(r.j.error) + ' (' + ad.fails + '/3)', 'err');
+  } else adMsg('#adMsg1', adErr(r.j.error), 'err');
+});
+$('#adParse').addEventListener('click', async () => {
+  const text = $('#adText').value.trim(); if (!text) { adMsg('#adMsg2', 'Pega primero el mensaje.', 'err'); return; }
+  adMsg('#adMsg2', 'Interpretando…');
+  const r = await adPost('api/parse', { user: ad.user, pass: ad.pass, text });
+  if (!r.ok) { adMsg('#adMsg2', adErr(r.j.error), 'err'); return; }
+  const d = r.j.data || {};
+  if (d.n) $('#adN').value = d.n;
+  if (d.fecha) $('#adFecha').value = d.fecha;
+  if (d.hora) $('#adHora').value = d.hora;
+  if (d.rival) $('#adRival').value = d.rival;
+  if (d.lugar) $('#adLugar').value = d.lugar;
+  adMsg('#adMsg2', (r.j.via === 'ai' ? 'Interpretado con IA' : 'Interpretación básica') + '. Revisa los datos y pulsa GUARDAR.', 'ok');
+});
+$('#adForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const data = { n: $('#adN').value, fecha: $('#adFecha').value, hora: $('#adHora').value, rival: $('#adRival').value, lugar: $('#adLugar').value };
+  if (!+data.n || !data.rival.trim()) { adMsg('#adMsg2', 'Hace falta número de jornada y rival.', 'err'); return; }
+  adMsg('#adMsg2', 'Guardando…');
+  const r = await adPost('api/jornada', { user: ad.user, pass: ad.pass, data });
+  if (!r.ok) { adMsg('#adMsg2', adErr(r.j.error), 'err'); return; }
+  applyJornada(r.j.jornada); store.set('bpg_jornada', r.j.jornada);
+  adMsg('#adMsg2', '¡Jornada guardada! ✔', 'ok'); sfx.goal();
+  setTimeout(closeAdmin, 1100);
+});
 
 // ================== BUCLE ==================
 let last = performance.now(), acc = 0;
@@ -1234,6 +1436,8 @@ function frame(now) {
 // init
 const titleEl = $('#title');
 buildSelect();
+setTab('main');
+loadJornada();
 bindSeg('#segDiff', 'bpg_diff', 'normal');
 bindSeg('#segDur', 'bpg_dur', 120);
 G.ball = newBall();
