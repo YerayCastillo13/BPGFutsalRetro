@@ -1040,6 +1040,13 @@ crestImg.src = 'crest.svg';
 const crestOK = () => crestImg.complete && crestImg.naturalWidth > 0;
 const drawCrest = (c, x, y, s) => { if (crestOK()) c.drawImage(crestImg, x - s / 2, y - s / 2, s, s); };
 const mkCv = (w, h) => { const c = document.createElement('canvas'); c.width = w; c.height = h; return c; };
+// "BPG" en píxel-art 3x5 (a tamaños pequeños la tipografía confundía la B con una D)
+const BPG_GLYPHS = ['110101110101110', '110101110100100', '011100101101011'];
+function bpgPx(c, cx, cy, s, col) {
+  c.fillStyle = col;
+  const x0 = cx - 11 * s / 2, y0 = cy - 5 * s / 2;
+  BPG_GLYPHS.forEach((g, k) => { for (let i = 0; i < 15; i++) if (g[i] === '1') c.fillRect(x0 + (k * 4 + i % 3) * s, y0 + (i / 3 | 0) * s, s, s); });
+}
 function painter(c) {
   return {
     F: (x, y, w, h, col) => { c.fillStyle = col; c.fillRect(x, y, w, h); },
@@ -1072,7 +1079,7 @@ function buildStatic() {
   // póster izquierdo con el escudo
   R(2, 16, 30, 46, 2, '#6b4a26'); F(5, 19, 24, 40, '#0d0d0d');
   drawCrest(c, 17, 34, 22);
-  T('BPG', 17, 50, 6, '#f6c400');
+  bpgPx(c, 17, 50, 1, '#f6c400');
   // estantería con juegos
   [['#dc2626', 2, 20], ['#f6c400', 8, 26], ['#2563eb', 14, 18], ['#16a34a', 20, 22], ['#0d0d0d', 26, 27]].forEach(([col, x, h]) => {
     F(x, 150 - h, 5, h, col); F(x, 150 - h + 3, 5, 1, 'rgba(255,255,255,.35)'); F(x, 150 - h + 6, 5, 1, 'rgba(255,255,255,.2)');
@@ -1093,7 +1100,7 @@ function buildStatic() {
   R(46, 20, 268, 218, 18, '#080808'); R(50, 24, 260, 210, 15, '#1a1a1a');
   // panel inferior: rejilla, placa, mandos
   for (let i = 0; i < 14; i++) R(60 + i * 8, 250, 4, 38, 2, '#141414');
-  R(168, 256, 44, 15, 3, '#151515'); R(169, 257, 42, 13, 2, '#2a2a2a'); T('BPG', 190, 264, 8, '#f6c400');
+  R(168, 256, 44, 15, 3, '#151515'); R(169, 257, 42, 13, 2, '#2a2a2a'); bpgPx(c, 190, 264, 1.6, '#f6c400');
   [[270, 266, 13], [298, 266, 10]].forEach(([x, y, r]) => { E(x, y + 2, r, r, '#0a0a0a'); E(x, y, r, r, '#2b2b2b'); E(x, y, r - 3, r - 3, '#4f4f4f'); E(x - 2, y - 2, r - 7, r - 7, '#5e5e5e'); F(x - 1, y - r + 2, 2, 7, '#151515'); });
   R(226, 282, 12, 5, 2, '#111'); R(242, 282, 12, 5, 2, '#111');
   R(64, 298, 30, 8, 3, '#0b0b0b'); R(266, 298, 30, 8, 3, '#0b0b0b');
@@ -1184,7 +1191,7 @@ function drawScene(t) {
     }
   }
   // vallas publicitarias
-  for (let x = 0, i = 0; x < W; x += 31, i++) { F(X + x, Y0 + 127, 31, 12, i % 2 ? '#0d0d0d' : '#f6c400'); T('BPG', X + x + 15.5, Y0 + 133.5, 6, i % 2 ? '#f6c400' : '#0d0d0d'); }
+  for (let x = 0, i = 0; x < W; x += 31, i++) { F(X + x, Y0 + 127, 31, 12, i % 2 ? '#0d0d0d' : '#f6c400'); bpgPx(c, X + x + 15.5, Y0 + 133.5, 1, i % 2 ? '#f6c400' : '#0d0d0d'); }
   // césped con perspectiva
   let yy = Y0 + 139;
   [6, 7, 8, 9, 10, 11, 12, 13, 14, 16, 18].forEach((h, i) => { F(X, yy, W, h, i % 2 ? '#2f9a44' : '#278a3a'); yy += h; });
