@@ -69,26 +69,26 @@ button{font-family:inherit;cursor:pointer}
 @keyframes pop{from{transform:translateY(-50%) scale(.2) rotate(-8deg);opacity:0}to{transform:translateY(-50%) scale(1);opacity:1}}
 
 /* ---------- Mando ---------- */
-#pad{height:clamp(165px,29dvh,235px);flex:none;position:relative;display:flex;margin:6px 8px 8px;touch-action:none;
+.pad{height:clamp(165px,29dvh,235px);flex:none;position:relative;display:flex;margin:6px 8px 8px;touch-action:none;
   background:linear-gradient(#ddd7cb,#b6ae9f);border-radius:22px 22px 34px 34px;
   box-shadow:inset 0 2px 0 rgba(255,255,255,.6),inset 0 -5px 0 rgba(0,0,0,.18),0 4px 0 #000}
-#pad::before{content:"BPG";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-family:'Bungee';font-size:13px;
+.pad::before{content:"BPG";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-family:'Bungee';font-size:13px;
   color:#8c8476;letter-spacing:2px;text-shadow:0 1px 0 #fff8;pointer-events:none}
-#who{position:absolute;left:50%;top:9px;transform:translateX(-50%);font-size:7px;color:#3a352d;white-space:nowrap;pointer-events:none;text-align:center;line-height:1.6}
-#who b{color:#000}
-#joyzone{flex:1.15;position:relative;touch-action:none}
-#joybase{position:absolute;left:50%;top:58%;width:108px;height:108px;margin:-54px 0 0 -54px;border-radius:50%;
+.who{position:absolute;left:50%;top:9px;transform:translateX(-50%);font-size:7px;color:#3a352d;white-space:nowrap;pointer-events:none;text-align:center;line-height:1.6}
+.who b{color:#000}
+.joyzone{flex:1.15;position:relative;touch-action:none}
+.joybase{position:absolute;left:50%;top:58%;width:108px;height:108px;margin:-54px 0 0 -54px;border-radius:50%;
   background:radial-gradient(#3a3a3a,#1a1a1a);box-shadow:inset 0 3px 8px #000,0 2px 0 rgba(255,255,255,.5);pointer-events:none}
-#joyknob{position:absolute;left:50%;top:50%;width:52px;height:52px;margin:-26px;border-radius:50%;
+.joyknob{position:absolute;left:50%;top:50%;width:52px;height:52px;margin:-26px;border-radius:50%;
   background:radial-gradient(circle at 35% 30%,#5a5a5a,#111);border:3px solid var(--y);box-shadow:0 3px 0 #000}
-#joyhint{position:absolute;left:50%;bottom:8px;transform:translateX(-50%);font-size:6px;color:#6b6457;pointer-events:none}
-#btns{flex:1;position:relative;touch-action:none}
+.joyhint{position:absolute;left:50%;bottom:8px;transform:translateX(-50%);font-size:6px;color:#6b6457;pointer-events:none}
+.btns{flex:1;position:relative;touch-action:none}
 .btn{position:absolute;border-radius:50%;font-size:8px;line-height:1.3;border:3px solid #000;touch-action:none;
   box-shadow:0 6px 0 #000,inset 0 -5px 0 rgba(0,0,0,.25),inset 0 3px 0 rgba(255,255,255,.45)}
 .btn.pressed{transform:translateY(4px);box-shadow:0 2px 0 #000,inset 0 -2px 0 rgba(0,0,0,.25)}
-#bA{width:86px;height:86px;right:10px;top:22%;background:var(--y);color:#000}
-#bB{width:66px;height:66px;left:2px;bottom:11%;background:#161616;color:var(--y);box-shadow:0 6px 0 #000,inset 0 0 0 2px var(--y)}
-#bB.pressed{box-shadow:0 2px 0 #000,inset 0 0 0 2px var(--y)}
+.bA{width:86px;height:86px;right:10px;top:22%;background:var(--y);color:#000}
+.bB{width:66px;height:66px;left:2px;bottom:11%;background:#161616;color:var(--y);box-shadow:0 6px 0 #000,inset 0 0 0 2px var(--y)}
+.bB.pressed{box-shadow:0 2px 0 #000,inset 0 0 0 2px var(--y)}
 .btn small{display:block;font-size:6px;opacity:.7;margin-top:3px}
 
 /* ---------- Pantallas ---------- */
@@ -225,14 +225,81 @@ h2{font-family:'Bungee';font-size:24px;color:var(--y);text-shadow:3px 3px 0 #000
 #finalScorers{font-size:7px;line-height:2;color:#e7dcc4;text-align:center}
 #finalRecord{font-size:6px;color:#9a917f}
 .row{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+button[hidden],.opt[hidden]{display:none!important}
+
+/* ---------- 2 jugadores: el mando de P2 va arriba, girado 180º (cara a cara) ---------- */
+#pad2{display:none;transform:rotate(180deg)}
+.pad.p2::before{content:"P2"}
+#app.vs #pad2{display:flex}
+#app.vs .pad{height:clamp(120px,21dvh,176px)}
+#app.vs #pad::before{content:"P1"}
+#app.vs .joybase{width:88px;height:88px;margin:-44px 0 0 -44px}
+
+/* ---------- Menú de modos ---------- */
+#modeList{display:flex;flex-direction:column;gap:14px;width:100%;max-width:440px;flex:1;min-height:0;justify-content:center;padding:0 4px}
+.mode{display:grid;gap:6px;text-align:left;border:0;padding:12px 14px;background:#0d0d0d;color:#fff;touch-action:manipulation;
+  box-shadow:inset 0 0 0 2px var(--y),0 -3px 0 #000,0 3px 0 #000,-3px 0 0 #000,3px 0 0 #000,0 7px 0 rgba(0,0,0,.5)}
+.mode:active{transform:translateY(3px)}
+.mode b{font-family:'Bungee';font-weight:400;font-size:clamp(17px,5.2vw,22px);line-height:1.1;color:var(--y);text-shadow:2px 2px 0 #000}
+.mode span{font-family:system-ui,sans-serif;font-size:12px;line-height:1.35;color:#e7dcc4}
+.mode em{font-style:normal;font-size:6px;color:#000;background:var(--y);padding:3px 5px;justify-self:start}
+.mode em:empty{display:none}
+.mode[data-m=versus]{box-shadow:inset 0 0 0 2px var(--sky),0 -3px 0 #000,0 3px 0 #000,-3px 0 0 #000,3px 0 0 #000,0 7px 0 rgba(0,0,0,.5)}
+.mode[data-m=versus] b{color:var(--sky)}
+.mode[data-m=versus] em{background:var(--sky)}
+.slot.unused{opacity:.35}
+
+/* ---------- Liga ---------- */
+#lgRound{flex:none;font-size:9px;color:var(--y);text-shadow:2px 2px 0 #000}
+#lgNext{width:100%;max-width:440px;flex:none;display:flex;flex-direction:column;align-items:center;gap:8px}
+#lgNext .matchup{margin:0}
+.lgd{font-size:7px;color:#e7dcc4;text-align:center}
+.lgend{font-family:'Bungee';font-size:clamp(20px,6.4vw,28px);color:var(--y);text-shadow:3px 3px 0 #000;text-align:center;padding:12px 0}
+#lgTable{width:100%;max-width:440px;flex:1;min-height:0;display:flex;flex-direction:column;justify-content:space-around;padding:8px 6px;background:#0d0d0d;
+  box-shadow:inset 0 0 0 2px var(--y),0 -3px 0 #000,0 3px 0 #000,-3px 0 0 #000,3px 0 0 #000}
+.lgr{display:grid;grid-template-columns:20px 1fr 26px 32px 32px;align-items:center;gap:4px;font-size:7px;padding:4px 3px;color:#fff}
+.lgr.h{font-size:6px;color:#9a917f}
+.lgr.me{background:#3a2f00;color:var(--y)}
+.lgr i{font-style:normal;text-align:right}
+.lgn{display:flex;align-items:center;gap:6px;overflow:hidden;white-space:nowrap}
+.lgc{width:18px;height:18px;flex:none;display:block}
+#finalScorers .y{color:var(--y)} #finalScorers .s{color:var(--sky)}
+.mode[data-m=online]{box-shadow:inset 0 0 0 2px var(--sky),0 -3px 0 #000,0 3px 0 #000,-3px 0 0 #000,3px 0 0 #000,0 7px 0 rgba(0,0,0,.5)}
+.mode[data-m=online] b{color:var(--sky)}
+.mode[data-m=online] em{background:var(--sky)}
+#modeList{gap:10px}
+
+/* ---------- Online ---------- */
+.olbox{width:100%;max-width:380px;display:flex;flex-direction:column;align-items:center;gap:14px;padding:18px 14px;background:#0d0d0d;flex:none;
+  box-shadow:inset 0 0 0 2px var(--sky),0 -3px 0 #000,0 3px 0 #000,-3px 0 0 #000,3px 0 0 #000}
+.olbox[hidden]{display:none}
+.olor{font-size:7px;color:#9a917f}
+#olCode{width:100%;max-width:240px;text-align:center;text-transform:uppercase;letter-spacing:.3em;font-family:'Bungee',sans-serif;font-size:28px;color:var(--sky);
+  background:#1b1622;border:0;padding:10px 8px;box-shadow:inset 0 0 0 2px #5a5040;border-radius:0;outline:0;-webkit-user-select:text;user-select:text}
+#olCode:focus{box-shadow:inset 0 0 0 2px var(--sky)}
+#olTitle{font-size:8px;color:var(--sky)}
+#olBig{font-family:'Bungee',sans-serif;font-size:clamp(40px,14vw,60px);letter-spacing:.12em;color:var(--y);text-shadow:4px 4px 0 #000,0 0 22px rgba(246,196,0,.5)}
+#olStatus{min-height:3em;max-width:380px;text-align:center;font-family:system-ui,sans-serif;font-size:13px;line-height:1.4;color:#e7dcc4}
+#olStatus.ok{color:#86efac} #olStatus.err{color:#fca5a5}
+#netBadge{position:absolute;left:6px;top:4px;z-index:3;font-size:6px;color:#86efac;text-shadow:1px 1px 0 #000;pointer-events:none}
 </style>
 </head>
 <body>
 <div id="app">
+  <!-- Mando de P2 (solo en 2 jugadores): arriba y girado, para jugar cara a cara -->
+  <div class="pad p2" id="pad2">
+    <div class="who" id="who2"></div>
+    <div class="joyzone"><div class="joybase"><div class="joyknob"></div></div><div class="joyhint">MOVER</div></div>
+    <div class="btns">
+      <button class="btn bB" id="bB2"><span>PASE</span><small>B</small></button>
+      <button class="btn bA" id="bA2"><span>TIRO</span><small>A</small></button>
+    </div>
+  </div>
+
   <header id="hud">
     <button class="rbtn dark" id="pauseBtn" aria-label="Pausa">❚❚</button>
     <div class="sb">
-      <span class="tm bpg"><img class="hcrest" src="crest.svg" alt="">BPG</span>
+      <span class="tm bpg"><img class="hcrest" src="crest.svg" alt=""><span id="hudMe">BPG</span></span>
       <span class="score" id="s0" style="color:var(--y)">0</span>
       <span id="clock">2:00</span>
       <span class="score" id="s1" style="color:var(--sky)">0</span>
@@ -246,15 +313,16 @@ h2{font-family:'Bungee';font-size:24px;color:var(--y);text-shadow:3px 3px 0 #000
       <canvas id="game" width="270" height="480"></canvas>
       <div class="scan"></div><div class="vign"></div>
       <div id="banner"><b></b><small></small></div>
+      <div id="netBadge" hidden></div>
     </div>
   </div>
 
-  <div id="pad">
-    <div id="who"></div>
-    <div id="joyzone"><div id="joybase"><div id="joyknob"></div></div><div id="joyhint">MOVER</div></div>
-    <div id="btns">
-      <button class="btn" id="bB"><span>PASE</span><small>B</small></button>
-      <button class="btn" id="bA"><span>TIRO</span><small>A</small></button>
+  <div class="pad" id="pad">
+    <div class="who" id="who"></div>
+    <div class="joyzone"><div class="joybase"><div class="joyknob"></div></div><div class="joyhint">MOVER</div></div>
+    <div class="btns">
+      <button class="btn bB" id="bB"><span>PASE</span><small>B</small></button>
+      <button class="btn bA" id="bA"><span>TIRO</span><small>A</small></button>
     </div>
   </div>
 
@@ -286,9 +354,55 @@ h2{font-family:'Bungee';font-size:24px;color:var(--y);text-shadow:3px 3px 0 #000
     <button class="rbtn big blink" id="toSquad">▶ PRESS START</button>
   </section>
 
+  <!-- MODOS DE JUEGO -->
+  <section class="screen" id="modes">
+    <div class="ribbon sm"><span class="dash"><s></s><s></s><u></u></span><b>ELIGE MODO</b><span class="dash r"><s></s><s></s><u></u></span></div>
+    <div id="modeList">
+      <button class="mode" data-m="quick"><b>⚽ PARTIDO RÁPIDO</b><span>Tú contra la CPU. Elige dificultad y duración.</span><em id="mQuick"></em></button>
+      <button class="mode" data-m="league"><b>🏆 LIGA PATO</b><span>6 equipos, 5 jornadas. ¿Serás campeón?</span><em id="mLeague"></em></button>
+      <button class="mode" data-m="arcade"><b>⏱ ARCADE 60"</b><span>Marca todos los goles que puedas. Cada gol te da +5 segundos.</span><em id="mArcade"></em></button>
+      <button class="mode" data-m="online"><b>🌐 ONLINE</b><span>Crea una sala y pasa el código a un amigo: cada uno juega desde su móvil.</span></button>
+      <button class="mode" data-m="versus"><b>👥 MISMO MÓVIL</b><span>2 jugadores cara a cara en una sola pantalla. Cada uno con su mando.</span></button>
+    </div>
+    <div class="nav"><button class="rbtn dark" id="modesBack">◀</button></div>
+  </section>
+
+  <!-- ONLINE: sala con código de invitación -->
+  <section class="screen" id="online">
+    <div class="ribbon sm"><span class="dash"><s></s><s></s><u></u></span><b>ONLINE</b><span class="dash r"><s></s><s></s><u></u></span></div>
+    <div class="olbox" id="olHome">
+      <button class="rbtn big" id="olCreate">CREAR SALA</button>
+      <div class="olor">— O ENTRA CON UN CÓDIGO —</div>
+      <input id="olCode" maxlength="5" placeholder="ABCDE" autocomplete="off" autocapitalize="characters" autocorrect="off" spellcheck="false" aria-label="Código de sala">
+      <button class="rbtn" id="olJoin">UNIRSE</button>
+    </div>
+    <div class="olbox" id="olWait" hidden>
+      <div id="olTitle">CÓDIGO DE SALA</div>
+      <div id="olBig">-----</div>
+      <button class="rbtn sm" id="olShare">↗ COMPARTIR ENLACE</button>
+      <button class="rbtn big" id="olStart" hidden>EMPEZAR ▶</button>
+    </div>
+    <div id="olStatus"></div>
+    <div class="nav"><button class="rbtn dark" id="olBack">◀ SALIR</button></div>
+  </section>
+
+  <!-- LIGA -->
+  <section class="screen" id="league">
+    <div class="ribbon sm"><span class="dash"><s></s><s></s><u></u></span><b>LIGA PATO</b><span class="dash r"><s></s><s></s><u></u></span></div>
+    <div id="lgRound"></div>
+    <div id="lgNext"></div>
+    <div id="lgTable"></div>
+    <div class="nav">
+      <button class="rbtn dark" id="lgBack">◀</button>
+      <button class="rbtn dark sm" id="lgSquad">QUINTETO</button>
+      <button class="rbtn" id="lgPlay">JUGAR ▶</button>
+    </div>
+    <button class="rbtn dark sm" id="lgNew">REINICIAR</button>
+  </section>
+
   <!-- ELEGIR QUINTETO -->
   <section class="screen" id="squad">
-    <div class="ribbon sm"><span class="dash"><s></s><s></s><u></u></span><b>TU QUINTETO</b><span class="dash r"><s></s><s></s><u></u></span></div>
+    <div class="ribbon sm"><span class="dash"><s></s><s></s><u></u></span><b id="sqTitle">TU QUINTETO</b><span class="dash r"><s></s><s></s><u></u></span></div>
     <div id="card">
       <div class="cport"><canvas id="bigp" width="64" height="64"></canvas><span id="cNum"></span></div>
       <div class="cbody">
@@ -304,9 +418,9 @@ h2{font-family:'Bungee';font-size:24px;color:var(--y);text-shadow:3px 3px 0 #000
     <div id="roster"></div>
     <div id="pinfo"></div>
     <div class="opts">
-      <div class="opt"><span>RIVAL</span><div class="seg" id="segDiff">
+      <div class="opt" id="optDiff"><span>RIVAL</span><div class="seg" id="segDiff">
         <button class="rbtn dark sm" data-v="easy">FÁCIL</button><button class="rbtn dark sm" data-v="normal">NORMAL</button><button class="rbtn dark sm" data-v="hard">CRACK</button></div></div>
-      <div class="opt"><span>TIEMPO</span><div class="seg" id="segDur">
+      <div class="opt" id="optDur"><span>TIEMPO</span><div class="seg" id="segDur">
         <button class="rbtn dark sm" data-v="90">1:30</button><button class="rbtn dark sm" data-v="120">2:00</button><button class="rbtn dark sm" data-v="180">3:00</button></div></div>
     </div>
     <div class="nav"><button class="rbtn dark" id="backBtn">◀</button><button class="rbtn" id="startBtn">¡AL CAMPO! ▶</button></div>
@@ -340,11 +454,16 @@ h2{font-family:'Bungee';font-size:24px;color:var(--y);text-shadow:3px 3px 0 #000
   <!-- PAUSA -->
   <section class="screen dim" id="pause">
     <h2>PAUSA</h2>
-    <div class="help">
+    <div class="help" id="helpSolo">
       <b>Joystick</b>: mover al pato.<br>
       <b>A · TIRO</b>: mantén para cargar y suelta. Inclina el joystick para elegir palo.<br>
       <b>B · PASE</b>: pasa hacia donde apuntas.<br>
       Sin balón: <b>A = ENTRADA</b> · <b>B = CAMBIO</b>.
+    </div>
+    <div class="help" id="helpVs" hidden>
+      <b>P1 (abajo)</b> y <b>P2 (arriba)</b>: cada uno con su mando. Mismos controles que en solitario.<br>
+      <b>Teclado P1</b>: WASD · TIRO <b>F</b> · PASE <b>G</b><br>
+      <b>Teclado P2</b>: flechas · TIRO <b>.</b> · PASE <b>,</b>
     </div>
     <div class="row"><button class="rbtn big" id="resumeBtn">▶ SEGUIR</button></div>
     <div class="row"><button class="rbtn dark" id="quitBtn">SALIR AL MENÚ</button></div>
@@ -357,10 +476,11 @@ h2{font-family:'Bungee';font-size:24px;color:var(--y);text-shadow:3px 3px 0 #000
     <div id="finalMsg"></div>
     <div id="finalScorers"></div>
     <div id="finalRecord"></div>
-    <div class="row"><button class="rbtn big" id="againBtn">↻ REVANCHA</button></div>
-    <div class="row"><button class="rbtn dark" id="menuBtn">MENÚ</button></div>
+    <div class="row"><button class="rbtn big" id="againBtn">↻ REVANCHA</button><button class="rbtn big" id="nextBtn" hidden>CONTINUAR ▶</button></div>
+    <div class="row"><button class="rbtn sm" id="shareBtn" hidden>↗ COMPARTIR</button><button class="rbtn dark" id="menuBtn">MENÚ</button></div>
   </section>
 </div>
+<script src="peerjs.min.js"></script><!-- PeerJS (MIT): conexión directa entre móviles para el modo online -->
 <script src="game.js"></script>
 </body>
 </html>

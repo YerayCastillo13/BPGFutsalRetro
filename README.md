@@ -34,6 +34,35 @@ Rival: Unión Fuenlabrada FS (gaviotas celestes). Dificultad: Fácil / Normal / 
 - Sin balón: **A = ENTRADA** (sprint + intento de robo) · **B = CAMBIO** de jugador.
 - Teclado (PC): flechas/WASD, Espacio = A, X/Shift = B, P/Esc = pausa.
 
+## Modos de juego
+
+Al pulsar **PRESS START** se abre el menú de modos:
+
+| Modo | Qué es |
+|------|--------|
+| ⚽ **Partido rápido** | Tú contra la CPU, con dificultad y duración a elegir. Guarda el historial V/E/D. |
+| 🏆 **Liga Pato** | 6 equipos ficticios, todos contra todos (5 jornadas). Tus partidos se juegan; los demás se simulan. Los rivales van de más flojo a más duro. Clasificación con escudos generados, progreso guardado y contador de títulos. Equipos y fuerza en `LG_TEAMS` (`game.js`). |
+| ⏱ **Arcade 60"** | 3 contra 3 (portero, ala y pívot). 60 segundos: **+5 s por gol tuyo, −5 s por gol en contra**, y el rival se endurece con cada gol. Récord guardado y botón de compartir. |
+| 🌐 **Online** | 1 contra 1 desde dos móviles distintos con **código de sala** (5 caracteres) o **enlace** `?sala=ABCDE`. Ver más abajo. |
+| 👥 **Mismo móvil** | 2 jugadores cara a cara: el mando de P2 aparece **arriba y girado 180º**. Cada jugador elige su quinteto. Sin ventajas de dificultad. |
+
+Teclado en "mismo móvil": **P1** WASD + `F` (tiro) + `G` (pase) · **P2** flechas + `.` (tiro) + `,` (pase).
+
+### Cómo funciona el online (100 % gratis)
+
+1. Uno pulsa **ONLINE → elige quinteto → CREAR SALA**, y comparte el código o el enlace.
+2. El otro abre el enlace (o escribe el código en **UNIRSE**) y elige su quinteto.
+3. El anfitrión pulsa **EMPEZAR**. Al acabar hay **revancha** sin salir de la sala.
+
+Por dentro: WebRTC con [PeerJS](https://peerjs.com) (`peerjs.min.js`, licencia MIT, incluido en el repo). El servicio público gratuito de PeerJS solo
+empareja a los dos móviles; el partido va **directo entre ellos**, así que no hay servidor propio ni coste. El **anfitrión** corre la partida entera
+(juega el equipo amarillo) y manda ~30 estados por segundo; el **invitado** solo manda sus controles y dibuja lo que recibe, con el campo girado
+para ver a su equipo (el azul) abajo. El indicador de arriba a la izquierda muestra el ping.
+
+Límites conocidos: si cae el servicio público de PeerJS no se pueden crear salas nuevas (las partidas en curso siguen); algunas redes muy
+restrictivas pueden impedir la conexión directa; el anfitrión no tiene retardo y el invitado sí (el del ping). En online no hay pausa: el menú se
+abre por encima y la partida sigue.
+
 ## Actualizar la jornada (modo admin)
 
 El cartel de la portada (jornada, rival, fecha, hora, pabellón) se lee de `/api/jornada`. Si no hay servidor o datos,
