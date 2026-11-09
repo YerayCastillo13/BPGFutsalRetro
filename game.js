@@ -1913,11 +1913,12 @@ function netData(m) {
   switch (m.k) {
     case 'hi':
       if (!validLU(m.lu)) return;
-      if (NET.role === 'host') NET.remoteLu = m.lu; else NET.hostLu = m.lu;
+      if (NET.role === 'host') { NET.remoteLu = m.lu; if (!NET.inMatch) netSend({ k: 'hi', lu: lineups[0] }); }   // se responde siempre: el primer "hi" del anfitrión, al abrirse el canal, puede perderse
+      else NET.hostLu = m.lu;
       if (!NET.inMatch) showWait();
       break;
     case 'init': if (NET.role === 'guest') guestStart(m); break;
-    case 's': if (NET.role === 'guest' && NET.inMatch && m.q > (NET.buf.length ? NET.buf[NET.buf.length - 1].s.q : 0)) NET.buf.push({ at: performance.now(), s: m, done: false }); break;
+    case 's': if (NET.role === 'guest' && NET.inMatch && m.q > (NET.buf.length ? NET.buf[NET.buf.length - 1].s.q : 0)) { NET.buf.push({ at: performance.now(), s: m, done: false }); if (NET.buf.length > 90) NET.buf.splice(0, NET.buf.length - 90); } break;
     case 'i':
       if (NET.role === 'host') {
         const i = inputs[1];
