@@ -115,7 +115,16 @@ function noise(d, v = .08, at = 0) {
 const sfx = {
   kick(p = .5) { tone(200 + p * 80, .09, 'square', .07, 70); noise(.05, .06 + p * .06); },
   pass() { tone(330, .06, 'square', .05, 200); noise(.03, .04); },
-  whistle(n = 1) { for (let i = 0; i < n; i++) { tone(2500, .22, 'sine', .05, 0, i * .3); tone(2640, .22, 'sine', .05, 0, i * .3); } },
+  // silbato de árbitro: dos tonos que se alternan rápido (la "bolita") + un soplido. El último pitido de una serie es más largo.
+  whistle(n = 1) {
+    for (let i = 0; i < n; i++) {
+      const at = i * .42, long = i === n - 1, len = long ? 11 : 6;
+      for (let j = 0; j < len; j++) { tone(j % 2 ? 3150 : 2900, .06, 'sine', .11, 0, at + j * .05); tone(j % 2 ? 2950 : 3200, .06, 'triangle', .05, 0, at + j * .05); }
+      noise(.1 + len * .03, .035, at);
+    }
+  },
+  click() { tone(660, .04, 'square', .05); tone(990, .05, 'square', .04, 0, .035); },
+  back() { tone(520, .05, 'square', .05, 330); },
   goal() { [523, 659, 784, 1047, 784, 1047, 1319].forEach((f, i) => tone(f, .12, 'square', .06, 0, i * .09)); sfx.quack(.7); },
   quack(at = 0) { tone(560, .13, 'sawtooth', .07, 280, at); tone(540, .15, 'sawtooth', .07, 250, at + .17); },
   steal() { tone(440, .07, 'square', .05, 900); },
@@ -125,13 +134,38 @@ const sfx = {
   dash() { noise(.06, .04); tone(240, .06, 'triangle', .04, 480); },
 };
 
+// ================== MÚSICA (chiptune en bucle para portada y menús) ==================
+// Am - F - C - G, dos vueltas: melodía (cuadrada), bajo (triangular) y un charles de ruido. Notas MIDI, 0 = silencio.
+const MUS = {
+  lead: [69,0,72,0,76,0,72,0, 65,0,69,0,72,0,69,0, 72,0,76,0,79,0,76,0, 71,0,74,0,79,0,74,0,
+         76,76,0,72,76,0,81,0, 77,77,0,72,77,0,81,0, 79,79,0,76,79,0,84,0, 83,0,81,0,79,0,74,71],
+  bass: [45,0,57,0,45,0,57,45, 41,0,53,0,41,0,53,41, 48,0,60,0,48,0,60,48, 43,0,55,0,43,0,55,43],
+  eighth: 60 / 138 / 2, timer: 0, next: 0, i: 0, screens: ['title', 'modes', 'squad', 'league', 'online'],
+};
+const mHz = m => 440 * Math.pow(2, (m - 69) / 12);
+function musicTick() {
+  const c = S.ctx; if (!c) return;
+  while (MUS.next < c.currentTime + .35) {
+    const at = Math.max(0, MUS.next - c.currentTime), i = MUS.i, l = MUS.lead[i % 64], b = MUS.bass[i % 32];
+    if (l) tone(mHz(l), MUS.eighth * 1.7, 'square', .022, 0, at);
+    if (b) tone(mHz(b), MUS.eighth * 1.6, 'triangle', .06, 0, at);
+    if (i % 2) noise(.025, .012, at);
+    MUS.i = (i + 1) % 64; MUS.next += MUS.eighth;
+  }
+}
+function musicSync(screenId) {   // suena en portada y menús; calla en partido, pausa y final
+  const want = MUS.screens.includes(screenId) && !document.hidden && S.ctx;
+  if (want && !MUS.timer) { MUS.next = S.ctx.currentTime + .08; MUS.i = 0; MUS.timer = setInterval(musicTick, 100); musicTick(); }
+  else if (!want && MUS.timer) { clearInterval(MUS.timer); MUS.timer = 0; }
+}
+
 // En online, el anfitrión reenvía sus efectos de sonido al invitado (los internos de otro efecto y el "gol" no).
 (() => {
   let inside = false;
   for (const k of Object.keys(sfx)) {
     const f = sfx[k];
     sfx[k] = (...a) => {
-      const fwd = !inside && k !== 'goal' && NET.role === 'host' && NET.live;
+      const fwd = !inside && k !== 'goal' && NET.role === 'host' && NET.live && NET.inMatch;
       const was = inside; inside = true;
       try { f(...a); } finally { inside = was; }
       if (fwd) NET.ev.push(['s', k, a]);
@@ -992,9 +1026,21 @@ function drawPortrait(canvas, d, t = 0) {
 }
 
 // ================== UI ==================
+let curScreen = 'title';
 function showScreen(id) {
+  curScreen = id;
   document.querySelectorAll('.screen').forEach(s => s.classList.toggle('show', s.id === id));
+  musicSync(id);
 }
+// la música no puede sonar hasta el primer toque (política de los navegadores); también se calla con la pestaña en segundo plano
+document.addEventListener('pointerdown', () => { audio(); musicSync(curScreen); });
+document.addEventListener('visibilitychange', () => musicSync(curScreen));
+// sonido de clic en todos los botones de los menús (los del mando de juego no)
+document.addEventListener('click', e => {
+  const b = e.target.closest && e.target.closest('button');
+  if (!b || b.classList.contains('btn') || b.id === 'muteBtn' || b.id === 'pauseBtn') return;
+  audio(); (b.id === 'backBtn' || b.id === 'modesBack' || b.id === 'lgBack' || b.id === 'olBack' || b.id === 'quitBtn' ? sfx.back : sfx.click)();
+});
 let bannerT = null;
 const netHost = () => NET.role === 'host' && NET.live;
 function banner(t, sub, cls = '', noNet) {
