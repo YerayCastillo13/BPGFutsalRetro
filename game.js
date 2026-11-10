@@ -738,20 +738,22 @@ function updParticles(dt) {
 
 // ================== RENDER ==================
 const cv = $('#game'), ctx = cv.getContext('2d');
-const crowd = [];
-(function genCrowd() {
+let crowd = [], MX = 0, MY = 0;   // márgenes extra (en unidades del campo) rellenos de grada
+function genCrowd() {
+  crowd = [];
   const cols = ['#f6c400', '#0d0d0d', '#f6c400', '#fff', '#0d0d0d', '#f6c400', '#7dd3fc', '#e5e7eb'];
-  for (let y = 3; y < VH; y += 5) for (let x = 2; x < VW; x += 5) {
+  for (let y = 3 - Math.ceil(MY / 5) * 5; y < VH + MY; y += 5) for (let x = 2 - Math.ceil(MX / 5) * 5; x < VW + MX; x += 5) {
     const inside = x > P.l - 8 && x < P.r + 8 && y > P.t - 16 && y < P.b + 16;
     if (inside) continue;
     if (Math.random() < .15) continue;
     crowd.push({ x: x + rnd(-1, 1), y, c: cols[Math.floor(Math.random() * cols.length)], ph: rnd(7) });
   }
-})();
+}
+genCrowd();
 function circ(x, y, r, col) { ctx.fillStyle = col; ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill(); }
 
 function drawField() {
-  ctx.fillStyle = '#1b1426'; ctx.fillRect(0, 0, VW, VH);
+  ctx.fillStyle = '#1b1426'; ctx.fillRect(-MX - 2, -MY - 2, VW + 2 * MX + 4, VH + 2 * MY + 4);
   // grada
   const jump = G.crowdJump > 0;
   for (const c of crowd) {
@@ -898,6 +900,7 @@ function drawBall() {
 }
 function render() {
   ctx.save();
+  ctx.translate(MX, MY);
   if (G.shake > 0) ctx.translate(rnd(-2, 2) * G.shake * 3, rnd(-2, 2) * G.shake * 3);
   ctx.save();
   if (G.flip) { ctx.translate(VW, VH); ctx.rotate(Math.PI); }   // el invitado ve el campo girado: su equipo queda abajo
@@ -1077,9 +1080,13 @@ function fitCanvas() {
   const cs = getComputedStyle(tv);
   const w = tv.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
   const h = tv.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
-  let cw = w, ch = w * VH / VW;   // sin deformar: el mayor tamaño que cabe
-  if (ch > h) { ch = h; cw = h * VW / VH; }
-  sc.style.width = Math.floor(cw) + 'px'; sc.style.height = Math.floor(ch) + 'px';
+  if (w < 20 || h < 20) return;
+  // el campo mantiene su proporción; el espacio sobrante se llena de grada
+  const k = Math.min(w / VW, h / VH);
+  const cw = Math.round(w / k), ch = Math.round(h / k);
+  MX = (cw - VW) / 2; MY = (ch - VH) / 2;
+  if (cv.width !== cw || cv.height !== ch) { cv.width = cw; cv.height = ch; genCrowd(); }
+  sc.style.width = Math.floor(w) + 'px'; sc.style.height = Math.floor(h) + 'px';
 }
 window.addEventListener('resize', fitCanvas);
 if (window.ResizeObserver) new ResizeObserver(fitCanvas).observe($('#tv'));
