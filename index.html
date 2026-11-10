@@ -86,10 +86,16 @@ button{font-family:inherit;cursor:pointer}
 .btn{position:absolute;border-radius:50%;font-size:8px;line-height:1.3;border:3px solid #000;touch-action:none;
   box-shadow:0 6px 0 #000,inset 0 -5px 0 rgba(0,0,0,.25),inset 0 3px 0 rgba(255,255,255,.45)}
 .btn.pressed{transform:translateY(4px);box-shadow:0 2px 0 #000,inset 0 -2px 0 rgba(0,0,0,.25)}
-.bA{width:86px;height:86px;right:10px;top:22%;background:var(--y);color:#000}
-.bB{width:66px;height:66px;left:2px;bottom:11%;background:#161616;color:var(--y);box-shadow:0 6px 0 #000,inset 0 0 0 2px var(--y)}
-.bB.pressed{box-shadow:0 2px 0 #000,inset 0 0 0 2px var(--y)}
-.btn small{display:block;font-size:6px;opacity:.7;margin-top:3px}
+.btn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:0;color:#fff;text-shadow:1px 1px 0 #000}
+.btn span{font-size:7px;line-height:1.1}
+.bA{width:84px;height:84px;right:6px;bottom:7px;background:radial-gradient(circle at 35% 30%,#ffb3cf,#e8638f 70%);--ic:#fff}
+.bB{width:64px;height:64px;left:4px;top:6px;background:radial-gradient(circle at 35% 30%,#a9c8ff,#4a86e8 70%);--ic:#fff}
+/* símbolos estilo PlayStation: □ tiro, ✕ pase */
+.ico{position:relative;display:block;width:30px;height:30px;flex:none}
+.bB .ico{width:20px;height:20px;margin-bottom:3px}
+.ico.sq::before{content:"";position:absolute;inset:3px;border:4px solid var(--ic);box-shadow:0 2px 0 #000,inset 0 2px 0 #000}
+.ico.x::before,.ico.x::after{content:"";position:absolute;left:-1px;right:-1px;top:50%;height:4px;margin-top:-2px;background:var(--ic);box-shadow:0 2px 0 #000}
+.ico.x::before{transform:rotate(45deg)}.ico.x::after{transform:rotate(-45deg)}
 
 /* ---------- Pantallas ---------- */
 .screen{position:absolute;inset:0;z-index:20;display:none;flex-direction:column;align-items:center;overflow:hidden;
@@ -242,6 +248,8 @@ button[hidden],.opt[hidden]{display:none!important}
 #app:not(.vs) .vign{box-shadow:inset 0 0 24px rgba(0,0,0,.5)}
 #app:not(.vs) #hud{position:absolute;z-index:5;left:0;right:0;top:env(safe-area-inset-top);pointer-events:none}
 #app:not(.vs) #hud>*{pointer-events:auto}
+#app:not(.vs) #pad .who{top:auto;bottom:7px}
+#app:not(.vs) #pad::before{display:none}
 #app:not(.vs) .sb{background:rgba(10,6,12,.72)}
 #app:not(.vs) #pad{margin:6px 8px;height:clamp(120px,16dvh,170px)}
 @media (min-aspect-ratio:1/1) and (pointer:coarse){
@@ -314,8 +322,8 @@ button[hidden],.opt[hidden]{display:none!important}
     <div class="who" id="who2"></div>
     <div class="joyzone"><div class="joybase"><div class="joyknob"></div></div><div class="joyhint">MOVER</div></div>
     <div class="btns">
-      <button class="btn bB" id="bB2"><span>PASE</span><small>B</small></button>
-      <button class="btn bA" id="bA2"><span>TIRO</span><small>A</small></button>
+      <button class="btn bB" id="bB2"><i class="ico x"></i><span>PASE</span></button>
+      <button class="btn bA" id="bA2"><i class="ico sq"></i><span>TIRO</span></button>
     </div>
   </div>
 
@@ -344,8 +352,8 @@ button[hidden],.opt[hidden]{display:none!important}
     <div class="who" id="who"></div>
     <div class="joyzone"><div class="joybase"><div class="joyknob"></div></div><div class="joyhint">MOVER</div></div>
     <div class="btns">
-      <button class="btn bB" id="bB"><span>PASE</span><small>B</small></button>
-      <button class="btn bA" id="bA"><span>TIRO</span><small>A</small></button>
+      <button class="btn bB" id="bB"><i class="ico x"></i><span>PASE</span></button>
+      <button class="btn bA" id="bA"><i class="ico sq"></i><span>TIRO</span></button>
     </div>
   </div>
 
@@ -479,9 +487,9 @@ button[hidden],.opt[hidden]{display:none!important}
     <h2>PAUSA</h2>
     <div class="help" id="helpSolo">
       <b>Joystick</b>: mover al pato.<br>
-      <b>A · TIRO</b>: mantén para cargar y suelta. Inclina el joystick para elegir palo.<br>
-      <b>B · PASE</b>: pasa hacia donde apuntas.<br>
-      Sin balón: <b>A = ENTRADA</b> · <b>B = CAMBIO</b>.
+      <b>□ TIRO (rosa)</b>: mantén para cargar y suelta. Inclina el joystick para elegir palo.<br>
+      <b>✕ PASE (azul)</b>: pasa hacia donde apuntas.<br>
+      Sin balón: <b>□ = ENTRADA</b> · <b>✕ = CAMBIO</b>.
     </div>
     <div class="help" id="helpVs" hidden>
       <b>P1 (abajo)</b> y <b>P2 (arriba)</b>: cada uno con su mando. Mismos controles que en solitario.<br>

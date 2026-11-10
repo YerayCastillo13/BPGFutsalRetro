@@ -29,9 +29,9 @@ Rival: Unión Fuenlabrada FS (gaviotas celestes). Dificultad: Fácil / Normal / 
 ## Controles
 
 - **Joystick** (mitad izquierda del mando): mover. Es flotante: toca donde quieras.
-- **A · TIRO**: mantén para cargar y suelta. Inclina el joystick a izquierda/derecha para elegir palo.
-- **B · PASE**: pasa al compañero hacia el que apuntas.
-- Sin balón: **A = ENTRADA** (sprint + intento de robo) · **B = CAMBIO** de jugador.
+- **□ TIRO (rosa)**: mantén para cargar y suelta. Inclina el joystick a izquierda/derecha para elegir palo.
+- **✕ PASE (azul)**: pasa al compañero hacia el que apuntas.
+- Sin balón: **□ = ENTRADA** (sprint + intento de robo) · **✕ = CAMBIO** de jugador.
 - Teclado (PC): flechas/WASD, Espacio = A, X/Shift = B, P/Esc = pausa.
 
 ## Modos de juego
