@@ -1077,8 +1077,10 @@ function fitCanvas() {
   const cs = getComputedStyle(tv);
   const w = tv.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
   const h = tv.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
-  let cw = w, ch = w * VH / VW;
-  if (ch > h) { ch = h; cw = h * VW / VH; }
+  // el campo se estira ligeramente (±) para rellenar el hueco disponible según el dispositivo
+  const base = VW / VH, a = Math.min(base * 1.3, Math.max(base * 0.85, w / h));
+  let cw = w, ch = w / a;
+  if (ch > h) { ch = h; cw = h * a; }
   sc.style.width = Math.floor(cw) + 'px'; sc.style.height = Math.floor(ch) + 'px';
 }
 window.addEventListener('resize', fitCanvas);
