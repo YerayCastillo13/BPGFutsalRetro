@@ -249,7 +249,7 @@ function startMatch() {
   else if (onl) { G.diff = DIFFS.versus; setRV('RIV', 'RIVAL', 'RIVAL', 'TÚ'); }
   else if (mode === 'league') { const o = LG_TEAMS[lgOpp()]; G.diff = lgDiff(o.str); setRV(o.short, o.short, o.name); }
   else { G.diff = arcDiff(0); setRV('CPU', 'CPU', 'CPU'); }
-  $('#app').classList.toggle('vs', vs);
+  $('#app').classList.toggle('vs', vs); if (typeof fitCanvas === 'function') fitCanvas();
   if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
   showScreen(null);
   if (onl) { NET.ev = []; NET.rm = false; NET.seq = 0; }
@@ -1074,7 +1074,9 @@ function hud() {
 
 function fitCanvas() {
   const tv = $('#tv'), sc = $('#screen');
-  const w = tv.clientWidth - 16, h = tv.clientHeight - 8;
+  const cs = getComputedStyle(tv);
+  const w = tv.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+  const h = tv.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
   let cw = w, ch = w * VH / VW;
   if (ch > h) { ch = h; cw = h * VW / VH; }
   sc.style.width = Math.floor(cw) + 'px'; sc.style.height = Math.floor(ch) + 'px';
