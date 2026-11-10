@@ -237,13 +237,13 @@ button[hidden],.opt[hidden]{display:none!important}
 
 /* ---------- 1 jugador / online: campo a pantalla completa; marcador flotante; mando fijo justo debajo del campo ---------- */
 #app:not(.vs){max-width:none}
-#app:not(.vs) #tv{align-items:flex-end;padding:calc(env(safe-area-inset-top) + 50px) 0 0}
+#app:not(.vs) #tv{align-items:flex-end;padding:calc(env(safe-area-inset-top) + 44px) 0 0}
 #app:not(.vs) #screen{border:0;border-radius:0;box-shadow:none}
 #app:not(.vs) .vign{box-shadow:inset 0 0 24px rgba(0,0,0,.5)}
 #app:not(.vs) #hud{position:absolute;z-index:5;left:0;right:0;top:env(safe-area-inset-top);pointer-events:none}
 #app:not(.vs) #hud>*{pointer-events:auto}
 #app:not(.vs) .sb{background:rgba(10,6,12,.72)}
-#app:not(.vs) #pad{margin:6px 8px;height:clamp(130px,18dvh,190px)}
+#app:not(.vs) #pad{margin:6px 8px;height:clamp(120px,16dvh,170px)}
 @media (min-aspect-ratio:1/1) and (pointer:coarse){
   /* móvil apaisado: joystick y botones a los lados, sin tapar el campo */
   #app:not(.vs) #tv{position:absolute;inset:0;align-items:center;padding:env(safe-area-inset-top) 0 0}
